@@ -28,7 +28,11 @@ export class BillingDetailsPage extends BasePage {
   }
 
   async verifyBillingDetailsPage() {
-    await this.page.waitForSelector(billingDetailsLocators.pageHeader);
+    await this.page.waitForSelector(billingDetailsLocators.pageHeader, {
+      state: "visible",
+      timeout: 500000,
+    });
+    await this.page.waitForLoadState("networkidle");
     await expect(this.page.locator("h1")).toHaveText(
       "My Order: Billing details"
     );

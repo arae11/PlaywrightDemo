@@ -60,18 +60,34 @@ test.describe("16-25 BFS Mid-Flow Purchase", () => {
           brailleSticker: data.BrailleSticker,
         });
 
-        // Select Eligibility page - select eligibility check method
-        await pages.selectEligibility.selectEligibilityCheck(
-          data.EligibilityMethod
-        );
+        // // Select Eligibility page - select eligibility check method
+        // await pages.selectEligibility.selectEligibilityCheck(
+        //   data.EligibilityMethod
+        // );
 
-        // Eligibility Validation page - enter eligibility document
-        await pages.selectEligibility.enterEligibilityNumber(
-          data.EligibilityMethod,
-          data.Passport,
-          data.DrivingLicence,
-          data.NIC
-        );
+        // // Eligibility Validation page - enter eligibility document
+        // await pages.selectEligibility.enterEligibilityNumber(
+        //   data.EligibilityMethod,
+        //   data.Passport,
+        //   data.DrivingLicence,
+        //   data.NIC
+        // );
+        if (data.Railcard !== "MATURE") {
+          // Select Eligibility page - select eligibility check method
+          await pages.selectEligibility.selectEligibilityCheck(
+            data.EligibilityMethod
+          );
+
+          // Eligibility Validation page - enter eligibility document
+          await pages.selectEligibility.enterEligibilityNumber(
+            data.EligibilityMethod,
+            data.Passport,
+            data.DrivingLicence,
+            data.NIC
+          );
+        } else {
+          await pages.supportingEvidence.provideEvidence(data.EvidenceDocument);
+        }
 
         // Photo upload page - upload single photo
         await pages.uploadPhoto.uploadPhotoSingle(data.PhotoFile);
@@ -130,7 +146,9 @@ test.describe("16-25 BFS Mid-Flow Purchase", () => {
         await pages.confirmation.logPaymentSummaryText();
 
         // Wait for confirmation email and extract link
-        const confirmationLink = await EmailHelper.getConfirmationLink(testEmail);
+        const confirmationLink = await EmailHelper.getConfirmationLink(
+          testEmail
+        );
 
         // Open confirmation link and verify account, redirect to IDP
         await pages.verification.verifyEmailAndNavigateToIDP(confirmationLink);

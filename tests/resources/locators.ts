@@ -68,7 +68,7 @@ export const chooseRailcardLocators = {
 
 export const customiseRailcardLocators = {
     // Customise Railcard page
-    selectMatureCheckbox: '', // TODO: Add the correct selector
+    selectMatureCheckbox: 'input#mature-student-0',
     selectOneYear: 'xpath=//label[@for="select-term-option-1"]', //same as 4 year
     selectThreeYear: 'xpath=//label[@for="select-term-option-0"]',
     selectDigital: 'xpath=//label[@for="railcard-type-option-0"]',
@@ -117,12 +117,19 @@ export const eligibilityLocators = {
     selectLicence: /*'#method-option-1', */'//label[@for="method-option-1"]',
     selectNIC: /*'#method-option-2',*/'//label[@for="method-option-2"]',
     enterDocumentNumber: '#seg1',
-    uploadMatureDocument: '#files',
 
     // Age Eligibility Validation page
     licenceValidationPageHeader: 'h1:has-text("Driving licence validation")',
     nicValidationPageHeader: 'h1:has-text("Identity card validation")',
     passportValidationPageHeader: 'h1:has-text("Passport validation")',
+};
+
+export const supportingEvidenceLocators = {
+    // Mature 16-25 Railcard - Provide Supporting Evidence page
+    pageHeader: 'h1:has-text("Provide supporting evidence")',
+    uploadMatureDocument: '#files',
+    uploadButton: '//button[@aria-label="Upload"]',
+    deleteButton: 'a[aria-label="Delete"]',
 };
 
 export const disabilityLocators = {

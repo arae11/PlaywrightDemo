@@ -17,6 +17,7 @@ import { PaymentPage } from "./PaymentPage";
 import { OrderConfirmationPage } from "./OrderConfirmationPage";
 import { MyRailcardsPage } from "./MyRailcardsPage";
 import { ManageDigitalRailcardPage } from "./ManageDigitalRailcardPage";
+import { SupportingEvidencePage } from "./SupportingEvidencePage";
 
 export class Pages {
   readonly basePage: BasePage;
@@ -37,6 +38,7 @@ export class Pages {
   readonly confirmation: OrderConfirmationPage;
   readonly myRailcards: MyRailcardsPage;
   readonly manageRailcards: ManageDigitalRailcardPage;
+  readonly supportingEvidence: SupportingEvidencePage;
 
   constructor(public readonly page: Page) {
     this.basePage = new BasePage(page);
@@ -57,5 +59,6 @@ export class Pages {
     this.confirmation = new OrderConfirmationPage(page);
     this.myRailcards = new MyRailcardsPage(page);
     this.manageRailcards = new ManageDigitalRailcardPage(page);
+    this.supportingEvidence = new SupportingEvidencePage(page);
   }
 }

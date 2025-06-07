@@ -18,3 +18,4 @@ export { PaymentPage } from './PaymentPage';
 export { OrderConfirmationPage } from './OrderConfirmationPage';
 export { MyRailcardsPage } from './MyRailcardsPage';
 export { ManageDigitalRailcardPage } from './ManageDigitalRailcardPage';
+export { SupportingEvidencePage } from './SupportingEvidencePage';

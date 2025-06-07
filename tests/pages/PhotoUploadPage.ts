@@ -61,6 +61,8 @@ export class PhotoUploadPage extends BasePage {
   async uploadPhotoDual(photoFileName: string) {
     await this.verifyPhotoUploadPageSingle();
     await this.uploadPhoto(photoFileName, true);
+    await this.clickSave();
+    await this.waitForClearButtonVisible();
     await this.clickContinue();
   }
 }

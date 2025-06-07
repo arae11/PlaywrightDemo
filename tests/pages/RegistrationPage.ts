@@ -49,11 +49,9 @@ export class RegistrationPage extends BasePage {
   }
 
   async verifyMidflowRegistrationPage() {
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState("networkidle");
     await this.page.waitForSelector(idpLocators.midflowRegisterPageHeader);
-    await expect(this.page.locator('h1')).toHaveText(
-      "Login"
-    );
+    await expect(this.page.locator("h1")).toHaveText("Login");
   }
 
   async enterEmailAddress(email: string) {
@@ -65,7 +63,14 @@ export class RegistrationPage extends BasePage {
   }
 
   async clickMidflowRegisterButton() {
-    await this.page.click(idpLocators.midflowRegisterButton);
+    console.log(
+      "📧 Registering with email:",
+      await this.page.inputValue("#Email")
+    );
+    await this.page.click(idpLocators.midflowRegisterButton, {
+      force: true,
+      delay: 100,
+    });
   }
 
   async midflowAccountRegistration(email: string, password: string) {
