@@ -13,7 +13,7 @@ const CREDENTIALS_PATH = path.join(
 );
 
 async function authenticate(): Promise<OAuth2Client> {
-  console.log("📂 Using credentials file:", CREDENTIALS_PATH);
+  //console.log("📂 Using credentials file:", CREDENTIALS_PATH);
 
   if (!fs.existsSync(CREDENTIALS_PATH)) {
     throw new Error(`❌ File does not exist at path: ${CREDENTIALS_PATH}`);
