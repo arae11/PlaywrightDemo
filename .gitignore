@@ -1,9 +1,62 @@
-
 # Playwright
+playwright/.cache/
+
+# Node.js dependencies
 node_modules/
+
+# TypeScript build output
+dist/
+build/
+
+# Playwright test reports and artifacts
 test-results/
-/playwright-report/
+playwright-report/
+
+# VS Code settings
+.vscode/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Debugger
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Token and credentials
+tests/resources/token.json
+tests/resources/credentials.json
+
+# Temporary files
+*.tmp
+*.temp
+
+# Coverage reports (if any)
+coverage/
+
+# Compiled JS from TS (if you don’t want to track them)
+#*.js
+#*.js.map
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Optional: lock files (usually tracked, but if you want to ignore)
+# package-lock.json
+# yarn.lock
+
 /blob-report/
-/playwright/.cache/
-/tests/resources/credentials.json
-/tests/resources/token.json
+
