@@ -1,0 +1,23 @@
+{
+  "name": "playwrightdemo",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "rm -rf test-results && playwright test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@playwright/test": "^1.52.0",
+    "@types/node": "^22.15.21",
+    "playwright": "^1.52.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3",
+    "xlsx": "^0.18.5"
+  },
+  "dependencies": {
+    "googleapis": "^105.0.0"
+  }
+}
