@@ -1,3 +1,5 @@
+import { randomUUID } from 'crypto';
+
 interface EmailEpochResult {
     email: string;
     epoch: number;
@@ -8,15 +10,11 @@ export function generateEmailWithEpoch(
     railcardType: string
 ): EmailEpochResult {
     const epoch = Math.floor(Date.now() / 1000);
-    const modifiedEmail = originalEmail.replace('@', `+${railcardType}${epoch}@`);
+    const uniquePart = randomUUID().slice(0, 8); // Shorten UUID for email readability
+    const modifiedEmail = originalEmail.replace('@', `+${railcardType}${epoch}${uniquePart}@`);
     
-    const result = {
+    return {
         email: modifiedEmail,
         epoch
     };
-
-    // Log the returned email and epoch
-    // console.log('Generated email with epoch:', result);
-    
-    return result;
 }

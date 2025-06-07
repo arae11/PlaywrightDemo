@@ -130,7 +130,7 @@ test.describe("16-25 BFS Mid-Flow Purchase", () => {
         await pages.confirmation.logPaymentSummaryText();
 
         // Wait for confirmation email and extract link
-        const confirmationLink = await EmailHelper.getConfirmationLink();
+        const confirmationLink = await EmailHelper.getConfirmationLink(testEmail);
 
         // Open confirmation link and verify account, redirect to IDP
         await pages.verification.verifyEmailAndNavigateToIDP(confirmationLink);

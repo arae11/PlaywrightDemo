@@ -13,8 +13,6 @@ const CREDENTIALS_PATH = path.join(
 );
 
 async function authenticate(): Promise<OAuth2Client> {
-  //console.log("📂 Using credentials file:", CREDENTIALS_PATH);
-
   if (!fs.existsSync(CREDENTIALS_PATH)) {
     throw new Error(`❌ File does not exist at path: ${CREDENTIALS_PATH}`);
   }
@@ -31,7 +29,6 @@ async function authenticate(): Promise<OAuth2Client> {
   }
 
   if (parsed && parsed.installed) {
-    // Mask sensitive fields
     parsed.installed.client_secret = "****MASKED****";
     parsed.installed.client_id = maskString(parsed.installed.client_id);
 
@@ -61,7 +58,6 @@ async function authenticate(): Promise<OAuth2Client> {
     console.log(rawContent);
   }
 
-  // Helper to partially mask client_id, show only last 6 chars for example
   function maskString(str: string) {
     if (!str || str.length < 6) return "****MASKED****";
     return "****" + str.slice(-6);
@@ -79,7 +75,6 @@ async function authenticate(): Promise<OAuth2Client> {
   }
 
   const credentials = raw.installed;
-  //console.log("Using client_id:", credentials.client_id);
 
   const oAuth2Client = new google.auth.OAuth2(
     credentials.client_id,
@@ -88,7 +83,6 @@ async function authenticate(): Promise<OAuth2Client> {
   );
 
   const token = JSON.parse(fs.readFileSync(TOKEN_PATH, "utf8"));
-  //console.log("🔐 Includes refresh_token:", "refresh_token" in token);
 
   if (!token.refresh_token) {
     throw new Error(
@@ -100,13 +94,15 @@ async function authenticate(): Promise<OAuth2Client> {
   return oAuth2Client;
 }
 
-export async function extractConfirmationLink(): Promise<string> {
+export async function extractConfirmationLink(
+  targetEmail: string
+): Promise<string> {
   const auth = await authenticate();
   const gmail = google.gmail({ version: "v1", auth });
 
   const listRes = await gmail.users.messages.list({
     userId: "me",
-    maxResults: 5,
+    maxResults: 10,
     q: 'subject:"Confirm your email address" newer_than:1d',
   });
 
@@ -122,7 +118,19 @@ export async function extractConfirmationLink(): Promise<string> {
       format: "full",
     });
 
-    // 🧠 Find the most appropriate body part
+    const headers = msg.data.payload?.headers || [];
+    const toHeader = headers.find(
+      (h) => h?.name?.toLowerCase?.() === "to" && typeof h.value === "string"
+    );
+
+    if (
+      typeof toHeader?.value !== "string" ||
+      !toHeader.value.includes(targetEmail)
+    ) {
+      console.log(`⏭️ Skipping message not sent to: ${targetEmail}`);
+      continue;
+    }
+
     const parts = msg.data.payload?.parts || [];
     const htmlPart = parts.find((p) => p.mimeType === "text/html");
     const plainPart = parts.find((p) => p.mimeType === "text/plain");
@@ -157,9 +165,7 @@ export async function extractConfirmationLink(): Promise<string> {
     console.log(separator + "\n");
 
     return confirmationLink;
-
-    console.log("🔍 No link in this message, continuing to next...");
   }
 
-  throw new Error("❌ No verification link found in recent matching emails");
+  throw new Error(`❌ No matching email found for recipient: ${targetEmail}`);
 }
