@@ -2,7 +2,6 @@ import { Page, Locator, expect } from "@playwright/test";
 import { BasePage } from "./BasePage";
 import { photoUploadLocators } from "../resources/locators";
 import path from "path";
-import fs from "fs";
 
 export class PhotoUploadPage extends BasePage {
   constructor(page: Page) {

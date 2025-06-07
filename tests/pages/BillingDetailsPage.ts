@@ -135,38 +135,6 @@ export class BillingDetailsPage extends BasePage {
     }
   }
 
-  // async uncheckSameAsBillingAddress() {
-  //   const checkbox = this.page.locator(
-  //     deliveryDetailsLocators.sameAsBillingCheckbox
-  //   );
-  //   if (await checkbox.isChecked()) {
-  //     await checkbox.uncheck();
-  //   }
-  // }
-
-  // async uncheckSameAsBillingAddress() {
-  //   const checkbox = this.page.locator(
-  //     deliveryDetailsLocators.sameAsBillingCheckbox
-  //   );
-
-  //   await checkbox.waitFor({ state: "visible" });
-
-  //   const isChecked = await checkbox.isChecked();
-  //   console.log("Before uncheck - isChecked:", isChecked);
-
-  //   if (isChecked) {
-  //     await checkbox.uncheck();
-  //     console.log("Checkbox was checked, now attempting to uncheck...");
-  //   } else {
-  //     console.log("Checkbox already unchecked.");
-  //   }
-
-  //   // Final verification
-  //   const finalState = await checkbox.isChecked();
-  //   console.log("After uncheck - isChecked:", finalState);
-  //   expect(finalState).toBe(false);
-  // }
-
   async clickEnterAddressManuallyDelivery() {
     await this.page.click(deliveryDetailsLocators.enterAddressManually);
   }
@@ -238,27 +206,6 @@ export class BillingDetailsPage extends BasePage {
       await this.enterDeliveryAddressPostcode(DeliveryAddressPostcode);
     }
   }
-
-  // async setSameAsBillingAddressIfRequired(
-  //   CountryId: string,
-  //   SameAsBillingAddress: string,
-  //   DeliveryAddressLine1?: string,
-  //   DeliveryAddressLine2?: string,
-  //   DeliveryAddressLine3?: string,
-  //   DeliveryAddressTownCity?: string,
-  //   DeliveryAddressPostcode?: string
-  // ) {
-  //   if (CountryId === "826" && SameAsBillingAddress === "NO") {
-  //     await this.uncheckSameAsBillingAddress();
-  //     await this.enterDeliveryAddress(
-  //       DeliveryAddressLine1,
-  //       DeliveryAddressLine2,
-  //       DeliveryAddressLine3,
-  //       DeliveryAddressTownCity,
-  //       DeliveryAddressPostcode
-  //     );
-  //   }
-  // }
 
   async checkSameAsBillingAddress() {
     const checkbox = this.page.locator(

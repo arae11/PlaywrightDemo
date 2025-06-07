@@ -3,18 +3,6 @@ interface EmailEpochResult {
     epoch: number;
 }
 
-// export function generateEmailWithEpoch(
-//     originalEmail: string, 
-//     railcardType: string
-// ): EmailEpochResult {
-//     const epoch = Math.floor(Date.now() / 1000);
-//     const modifiedEmail = originalEmail.replace('@', `+${railcardType}${epoch}@`);
-//     return {
-//         email: modifiedEmail,
-//         epoch
-//     };
-// }
-
 export function generateEmailWithEpoch(
     originalEmail: string, 
     railcardType: string
