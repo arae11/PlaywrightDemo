@@ -1,38 +1,84 @@
 # PlaywrightDemo
-E2E testing of the Railcard website, built using Playwright in Typescript.
 
-This project utilises Data Driven Testing (DDT). Changes to the data should be made to the Railcard_Purchase_BAU.xlsx file in tests/resources.
+End-to-end (E2E) testing of the Railcard website, built using Playwright with TypeScript.
 
-What to Download:
-VS Code
-NodeJS
-Playwright
+---
 
-Things to install (console):
+## Overview
+
+This project uses **Data Driven Testing (DDT)**.  
+To update test data, modify the `Railcard_Purchase_BAU.xlsx` file located in `tests/resources`.
+
+---
+
+## Prerequisites
+
+Make sure to download and install the following:
+
+- [Visual Studio Code (VS Code)](https://code.visualstudio.com/)
+- [Node.js](https://nodejs.org/)
+- [Playwright](https://playwright.dev/)
+
+---
+
+## Setup Instructions
+
+Run the following commands in your terminal to install dependencies and set up the environment:
+
+```bash
 npx playwright install
 npm install playwright --save-dev
 npm install @playwright/test --save-dev
 npm install typescript --save-dev
-npx tsc --inti
+npx tsc --init
 npm install xlsx --save-dev
 npm install googleapis playwright
 npm install --save-dev @playwright/test
 npm install -D ts-node typescript
+```
 
+## Recommended VS Code Extensions
 
-Extensions:
-Playwright Test for VSCode
+    "Playwright Test" — enhances Playwright support and test running in VS Code.
 
-Gmail Authorization Command:
-npx ts-node tests/utils/authorizeGmail.ts -> run this and follow instructions to get token
+Gmail Authorization
 
-How to use the project:
-This project is utilising the Page Object Model (POM). Following the format of the current files in tests/pages, add new pages if needed. Any new pages need to be added to index.ts and pages.ts.
+To authorize Gmail API access, run:
 
-These pages are used to construct your methods to be called in your tests. The tests are located in tests/specs.
+```bash
+npx ts-node tests/utils/authorizeGmail.ts
+```
 
-There is a folder called tests/resources that contains essential resources. Nothing should need updating here except any additions to locators.ts.
-These are set up to be used on individual pages to help improve readability and maintainability.
+Follow the on-screen instructions to generate or refresh your authentication token. This will create a token.json file in tests/resources.
 
-The tests/utils folder contains essential helpers that are used in the tests. They should not need updating except for when the Gmail token expires. If this happens, run "npx ts-node tests/utils/authorizeGmail.ts" in the console and follow the instructions to refresh the token. It should create a new token.json file in tests/resources.
+## Project Structure & Usage
+Page Object Model (POM)
+
+This project uses the Page Object Model (POM) pattern to organize code.
+
+    Add new pages by following the existing format in tests/pages.
+
+    Remember to register new pages in index.ts and pages.ts.
+
+    Pages encapsulate UI element locators and methods to interact with them.
+
+Tests
+
+    Test files are located in tests/specs.
+
+    Use the page methods in these test files to build your test scenarios.
+
+Resources
+
+    The tests/resources folder contains essential files such as locators and test data.
+
+    Avoid modifying files here unless adding new locators to locators.ts.
+
+Utilities
+
+    The tests/utils folder contains helper scripts used by the tests.
+
+    Usually, you won’t need to update these, except for Gmail token renewal.
+
+    To refresh the Gmail token, re-run the authorization command above.
 
