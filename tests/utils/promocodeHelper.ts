@@ -90,7 +90,6 @@ export class PromocodeHelper {
     isSantander: boolean;
   }> {
     if (!promo || promo.trim() === "") {
-      console.warn("⚠️ No promocode provided — skipping tag verification.");
       return {
         skipEligibility: false,
         skipPayment: false,
@@ -114,6 +113,62 @@ export class PromocodeHelper {
       skipPayment,
       isSantander,
     };
+  }
+
+  /**
+   * Returns 0.00 if skipPayment is true, otherwise returns the base price
+   * @param basePrice - The base price before promo discount
+   * @param skipPayment - Boolean indicating whether payment should be skipped
+   * @returns The final price to charge
+   */
+  getFinalPriceConsideringSkipPayment(
+    basePrice: number,
+    skipPayment: boolean
+  ): number {
+    return skipPayment ? 0.0 : basePrice;
+  }
+
+  /**
+   * Extracts the total discount value from the promocode validation API response.
+   * Assumes the response contains a property `totalDiscount` or calculates from `discounts` array.
+   * @param response - The promocode validation response object
+   * @returns The total discount amount as a number (e.g., 5.00)
+   */
+  extractTotalDiscountValue(response: any): number {
+    // Example 1: If the response has a totalDiscount field
+    if (typeof response.totalDiscount === "number") {
+      return response.totalDiscount;
+    }
+
+    // Example 2: If discounts is an array of discount objects with amount field
+    if (Array.isArray(response.discounts)) {
+      return response.discounts.reduce(
+        (acc: number, discount: { amount?: number }) => {
+          return (
+            acc + (typeof discount.amount === "number" ? discount.amount : 0)
+          );
+        },
+        0
+      );
+    }
+
+    // Default fallback if no discount info found
+    return 0.0;
+  }
+
+  /**
+   * Calculates the final price after applying the promocode discount.
+   * Ensures the final price is never negative.
+   * @param expectedPrice - The base price before discount
+   * @param discountAmount - The discount to subtract
+   * @returns The final discounted price as a number (e.g. 25.00)
+   */
+  calculatePromocodeDiscount(
+    expectedPrice: number,
+    discountAmount: number
+  ): number {
+    const finalPrice = expectedPrice - discountAmount;
+    return finalPrice < 0 ? 0 : parseFloat(finalPrice.toFixed(2));
   }
 
   /**

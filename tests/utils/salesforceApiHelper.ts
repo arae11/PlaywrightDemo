@@ -44,11 +44,6 @@ export class SalesforceApiHelper {
     this.clientId = config.clientId;
     this.clientSecret = config.clientSecret;
     this.authUrl = config.authUrl;
-
-    console.log("✅ SalesforceApiHelper initialized with config:", {
-      authUrl: this.authUrl,
-      clientId: this.clientId,
-    });
   }
 
   // Refresh Salesforce Token

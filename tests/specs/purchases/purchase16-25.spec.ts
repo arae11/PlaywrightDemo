@@ -19,6 +19,7 @@ const excelPath = path.join(
   "../../resources/Railcard_Purchase_BAU.xlsx"
 );
 import fs from "fs";
+import { orderSummaryLocators } from "@resources/locators";
 
 if (!fs.existsSync(excelPath)) {
   console.error(`Excel file not found at: ${excelPath}`);
@@ -154,7 +155,14 @@ test.describe("16-25 BFS Mid-Flow Purchase", () => {
         await pages.keepInTouch.skipKeepInTouchPage();
 
         // Railcard Order: Summary page - check Order ## to be added
-        await pages.orderSummary.skipOrderSummaryPage();
+        await pages.orderSummary.verifyCorrectPriceOnSummaryPage({
+          orderTotalLocator: orderSummaryLocators.orderTotalPrice,
+          railcard: data.Railcard,
+          years: data.Duration,
+          deliveryType: data.DeliveryType,
+          promo: data.Promocode,
+          sku: data.SKU,
+        });
 
         // Make payment
         await pages.payment.completePurchase(
