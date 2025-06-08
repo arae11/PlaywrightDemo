@@ -64,9 +64,11 @@ export class MyRailcardsPage extends BasePage {
     await this.page.click(myRailcardsLocators.railcardDetailsAddToApp);
   }
 
-  async getMyRailcardDetails() {
+  async getMyRailcardDetails(fulfilment: string) {
     await this.verifyMyRailcardPage();
     await this.extractRailcardInfo();
-    await this.clickAddRailcardToApp();
+    if (fulfilment === "DIGITAL") {
+      await this.clickAddRailcardToApp();
+    }
   }
 }

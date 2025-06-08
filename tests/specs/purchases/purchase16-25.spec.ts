@@ -65,18 +65,6 @@ test.describe("16-25 BFS Mid-Flow Purchase", () => {
           brailleSticker: data.BrailleSticker,
         });
 
-        // // Select Eligibility page - select eligibility check method
-        // await pages.selectEligibility.selectEligibilityCheck(
-        //   data.EligibilityMethod
-        // );
-
-        // // Eligibility Validation page - enter eligibility document
-        // await pages.selectEligibility.enterEligibilityNumber(
-        //   data.EligibilityMethod,
-        //   data.Passport,
-        //   data.DrivingLicence,
-        //   data.NIC
-        // );
         if (data.Railcard !== "MATURE") {
           // Select Eligibility page - select eligibility check method
           await pages.selectEligibility.selectEligibilityCheck(
@@ -130,6 +118,8 @@ test.describe("16-25 BFS Mid-Flow Purchase", () => {
             townCity: data.DeliveryAddressTownCity,
             postcode: data.DeliveryAddressPostcode,
           },
+          fulfilment: data.Fulfilment,
+          deliveryType: data.DeliveryType,
         });
 
         // Let's Keep in Touch page - skip keep in touch
@@ -163,14 +153,20 @@ test.describe("16-25 BFS Mid-Flow Purchase", () => {
         await pages.verification.verifyEmailAndNavigateToIDP(confirmationLink);
 
         // If Mature Student Railcard then access the Salesforce API and complete the Order
-        const orderProcessingService = new OrderProcessingService(salesforceApiHelper, railcardApiHelper);
-        await orderProcessingService.processMatureStudentRailcardOrder(orderNumber, data.Railcard);
+        const orderProcessingService = new OrderProcessingService(
+          salesforceApiHelper,
+          railcardApiHelper
+        );
+        await orderProcessingService.processMatureStudentRailcardOrder(
+          orderNumber,
+          data.Railcard
+        );
 
         // Log back into account
         await pages.login.login(testEmail, data.LoginPassword);
 
         // Extract Railcard information from My Railcards page
-        await pages.myRailcards.getMyRailcardDetails();
+        await pages.myRailcards.getMyRailcardDetails(data.Fulfilment);
 
         // Navigate to Manage Digital Railcard page and extract Railcard token
         // await pages.manageRailcards.getToken(); - Commented out as failing for some reason

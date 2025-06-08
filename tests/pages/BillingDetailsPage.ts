@@ -20,6 +20,8 @@ interface BillingDetails {
   sameAsBillingAddress: string;
   billingAddress: Address;
   deliveryAddress?: Address;
+  fulfilment: string,
+  deliveryType: string,
 }
 
 export class BillingDetailsPage extends BasePage {
@@ -296,6 +298,24 @@ export class BillingDetailsPage extends BasePage {
     }
   }
 
+  async selectFreeDelivery() {
+    await this.page.click(deliveryDetailsLocators.freeDelivery);
+  }
+
+  async selectSpecialDelivery() {
+    await this.page.click(deliveryDetailsLocators.specialDelivery);
+  }
+
+  async selectDeliveryType(deliveryType: string) {
+    if (deliveryType === "FREE") {
+      await this.selectFreeDelivery();
+    } else if (deliveryType === "SPECIAL") {
+      await this.selectSpecialDelivery();
+    } else {
+      throw new Error(`Unknown delivery type: ${deliveryType}`);
+    }
+  }
+
   async enterBillingDetails(details: BillingDetails) {
     const {
       countryPrefix,
@@ -304,6 +324,8 @@ export class BillingDetailsPage extends BasePage {
       sameAsBillingAddress,
       billingAddress,
       deliveryAddress,
+      fulfilment,
+      deliveryType,
     } = details;
 
     await this.verifyBillingDetailsPage();
@@ -325,6 +347,11 @@ export class BillingDetailsPage extends BasePage {
       sameAsBillingAddress,
       deliveryAddress
     );
+
+    // Conditionally select delivery type
+    if (fulfilment === "PLASTIC") {
+      await this.selectDeliveryType(deliveryType);
+    }
 
     await this.clickContinue();
   }
