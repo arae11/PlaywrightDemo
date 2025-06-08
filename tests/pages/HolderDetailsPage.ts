@@ -1,7 +1,11 @@
 import { Page } from "@playwright/test";
 import { BasePage } from "./BasePage";
 import { holderDetailsLocators } from "../resources/locators";
-import { calculateBoundaryDOB, BoundaryType, RailcardType } from "../utils/ageBoundaryHelper";
+import {
+  calculateBoundaryDOB,
+  BoundaryType,
+  RailcardType,
+} from "../utils/ageBoundaryHelper";
 
 interface HolderDetailsInput {
   title: string;
@@ -12,8 +16,10 @@ interface HolderDetailsInput {
   dobYear: string;
   phoneNumber: string;
   brailleSticker?: string;
-  railcard?: RailcardType;      // Add railcard info
-  years?: 1 | 3;                // Optional years param
+  railcard?: RailcardType; // Add railcard info
+  years?: 1 | 3; // Optional years param
+  purchaseType?: 'BFS' | 'BOB';
+  email?: string;
 }
 
 export class HolderDetailsPage extends BasePage {
@@ -22,51 +28,59 @@ export class HolderDetailsPage extends BasePage {
   }
 
   async fillPrimaryHolderDetails(details: HolderDetailsInput) {
-  const {
-    title,
-    firstName,
-    lastName,
-    dobDay,
-    dobMonth,
-    dobYear,
-    phoneNumber,
-    brailleSticker,
-    railcard,
-    years = 1,
-  } = details;
+    const {
+      title,
+      firstName,
+      lastName,
+      dobDay,
+      dobMonth,
+      dobYear,
+      phoneNumber,
+      brailleSticker,
+      railcard,
+      years = 1,
+      purchaseType,
+      email
+    } = details;
 
-  let finalDobDay = dobDay;
-  let finalDobMonth = dobMonth;
-  let finalDobYear = dobYear;
+    let finalDobDay = dobDay;
+    let finalDobMonth = dobMonth;
+    let finalDobYear = dobYear;
 
-  // Check if DOB fields contain 'lower' or 'upper' and calculate accordingly
-  if ((dobDay.toLowerCase() === 'lower' || dobDay.toLowerCase() === 'upper')
-      && railcard) {
-    // We only check dobDay here because lower/upper is a single indicator;
-    // You can also check all DOB fields for consistency if needed.
+    // Check if DOB fields contain 'lower' or 'upper' and calculate accordingly
+    if (
+      (dobDay.toLowerCase() === "lower" || dobDay.toLowerCase() === "upper") &&
+      railcard
+    ) {
+      // We only check dobDay here because lower/upper is a single indicator;
+      // You can also check all DOB fields for consistency if needed.
 
-    const boundaryType = dobDay.toLowerCase() as 'lower' | 'upper';
+      const boundaryType = dobDay.toLowerCase() as "lower" | "upper";
 
-    const calculatedDOB = calculateBoundaryDOB(railcard, boundaryType, years);
+      const calculatedDOB = calculateBoundaryDOB(railcard, boundaryType, years);
 
-    finalDobDay = calculatedDOB.day.toString().padStart(2, '0');
-    finalDobMonth = calculatedDOB.month.toString().padStart(2, '0');
-    finalDobYear = calculatedDOB.year.toString();
-  }
+      finalDobDay = calculatedDOB.day.toString().padStart(2, "0");
+      finalDobMonth = calculatedDOB.month.toString().padStart(2, "0");
+      finalDobYear = calculatedDOB.year.toString();
+    }
 
-  await this.page.selectOption(holderDetailsLocators.primaryTitle, title);
-  await this.page.fill(holderDetailsLocators.primaryFirstName, firstName);
-  await this.page.fill(holderDetailsLocators.primaryLastName, lastName);
-  await this.page.fill(holderDetailsLocators.primaryDOBDay, finalDobDay);
-  await this.page.fill(holderDetailsLocators.primaryDOBMonth, finalDobMonth);
-  await this.page.fill(holderDetailsLocators.primaryDOBYear, finalDobYear);
-  await this.page.fill(holderDetailsLocators.primaryPhoneNumber, phoneNumber);
+    await this.page.selectOption(holderDetailsLocators.primaryTitle, title);
+    await this.page.fill(holderDetailsLocators.primaryFirstName, firstName);
+    await this.page.fill(holderDetailsLocators.primaryLastName, lastName);
+    await this.page.fill(holderDetailsLocators.primaryDOBDay, finalDobDay);
+    await this.page.fill(holderDetailsLocators.primaryDOBMonth, finalDobMonth);
+    await this.page.fill(holderDetailsLocators.primaryDOBYear, finalDobYear);
+    await this.page.fill(holderDetailsLocators.primaryPhoneNumber, phoneNumber);
 
-  if (brailleSticker && brailleSticker.trim() !== "") {
-    await this.page.check(holderDetailsLocators.primaryBrailleSticker);
-  }
+    if (purchaseType === 'BOB' && email) {
+      await this.page.fill(holderDetailsLocators.primaryEmail, email);
+    }
 
-  await this.clickContinue();
+    if (brailleSticker && brailleSticker.trim() !== "") {
+      await this.page.check(holderDetailsLocators.primaryBrailleSticker);
+    }
+
+    await this.clickContinue();
   }
 
   async fillSecondaryHolderDetails(details: {

@@ -101,6 +101,7 @@ export const holderDetailsLocators = {
     primaryDOBYear: '#txtdob-year',
     primaryPhoneNumber: '#phone-number',
     primaryBrailleSticker: '#braille-sticker',
+    primaryEmail: '#email',
 
     // Secondary Holder
     secondaryCheckbox: '#agree-to-additional-card-holder',
