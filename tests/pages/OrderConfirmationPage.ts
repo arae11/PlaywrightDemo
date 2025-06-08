@@ -3,6 +3,8 @@ import { BasePage } from "./BasePage";
 import { confirmationLocators } from "../resources/locators";
 
 export class OrderConfirmationPage extends BasePage {
+  public extractedOrderNumber: string | null = null;
+
   constructor(page: Page) {
     super(page);
   }
@@ -21,7 +23,8 @@ export class OrderConfirmationPage extends BasePage {
     const getText = async (locator: string) =>
       (await this.page.textContent(locator))?.trim() || "N/A";
 
-    const orderNumber = await getText(confirmationLocators.orderNumber);
+    this.extractedOrderNumber = await getText(confirmationLocators.orderNumber);
+    const orderNumber = this.extractedOrderNumber;
     const orderDateTime = await getText(confirmationLocators.orderDateTime);
     const total = await getText(confirmationLocators.orderTotal);
     const billingAddress = await getText(confirmationLocators.billingAddress);
@@ -38,9 +41,7 @@ export class OrderConfirmationPage extends BasePage {
     logRow("💰 Order Total", total);
 
     if (total !== "£0.00") {
-      const paymentReference = await getText(
-        confirmationLocators.paymentReference
-      );
+      const paymentReference = await getText(confirmationLocators.paymentReference);
       logRow("🆔 Payment Reference", paymentReference);
     }
 

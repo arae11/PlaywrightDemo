@@ -39,6 +39,8 @@ Thumbs.db
 # Token and credentials
 tests/resources/token.json
 tests/resources/credentials.json
+tests/resources/railcard_credentials.json
+tests/resources/salesforce_credentials.json
 
 # Temporary files
 *.tmp

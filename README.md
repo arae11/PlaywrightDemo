@@ -35,6 +35,9 @@ npm install xlsx --save-dev
 npm install googleapis playwright
 npm install --save-dev @playwright/test
 npm install -D ts-node typescript
+npm install --save-dev @types/node-fetch
+npm install --save-dev @types/axios
+npm install axios
 ```
 
 ## Recommended VS Code Extensions

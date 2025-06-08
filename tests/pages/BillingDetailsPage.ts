@@ -32,7 +32,7 @@ export class BillingDetailsPage extends BasePage {
       state: "visible",
       timeout: 500000,
     });
-    await this.page.waitForLoadState("networkidle");
+    await this.page.waitForLoadState("domcontentloaded");
     await expect(this.page.locator("h1")).toHaveText(
       "My Order: Billing details"
     );
@@ -183,30 +183,42 @@ export class BillingDetailsPage extends BasePage {
     DeliveryAddressLine2?: string,
     DeliveryAddressLine3?: string,
     DeliveryAddressTownCity?: string,
-    DeliveryAddressPostcode?: string
+    DeliveryAddressPostcode?: string,
+    countryId?: string
   ) {
-    await this.clickEnterAddressManuallyDelivery();
-    await this.page.waitForSelector(deliveryDetailsLocators.addressLine1Field, {
-      state: "visible",
-    });
+    console.log("Filling delivery address fields...");
+    console.log(`Country ID for delivery: ${countryId}`);
+
+    // Only click "Enter address manually" for UK (826)
+    if (countryId === "826") {
+      console.log("Country is UK - clicking 'Enter address manually'.");
+      await this.clickEnterAddressManuallyDelivery();
+      await this.page.waitForSelector(
+        deliveryDetailsLocators.addressLine1Field,
+        {
+          state: "visible",
+        }
+      );
+    }
 
     if (DeliveryAddressLine1?.trim()) {
+      console.log(`Line 1: ${DeliveryAddressLine1}`);
       await this.enterDeliveryAddressLine1(DeliveryAddressLine1);
     }
-
     if (DeliveryAddressLine2?.trim()) {
+      console.log(`Line 2: ${DeliveryAddressLine2}`);
       await this.enterDeliveryAddressLine2(DeliveryAddressLine2);
     }
-
     if (DeliveryAddressLine3?.trim()) {
+      console.log(`Line 3: ${DeliveryAddressLine3}`);
       await this.enterDeliveryAddressLine3(DeliveryAddressLine3);
     }
-
     if (DeliveryAddressTownCity?.trim()) {
+      console.log(`Town/City: ${DeliveryAddressTownCity}`);
       await this.enterDeliveryAddressTownCity(DeliveryAddressTownCity);
     }
-
     if (DeliveryAddressPostcode?.trim()) {
+      console.log(`Postcode: ${DeliveryAddressPostcode}`);
       await this.enterDeliveryAddressPostcode(DeliveryAddressPostcode);
     }
   }
@@ -244,23 +256,42 @@ export class BillingDetailsPage extends BasePage {
       deliveryDetailsLocators.sameAsBillingCheckbox
     );
 
+    console.log(`Country ID: ${countryId}`);
+    console.log(`Same As Billing Address: ${sameAsBillingAddress}`);
+    console.log("Delivery Address:", deliveryAddress);
+
     if (countryId === "826") {
-      if (sameAsBillingAddress === "NO" && deliveryAddress) {
-        if (await checkbox.isChecked()) {
-          await checkbox.uncheck();
+      console.log("Country is UK.");
+
+      if (sameAsBillingAddress === "NO") {
+        console.log("Same as billing is NO - clicking checkbox (uncheck).");
+        if (!(await checkbox.isChecked())) {
+          await checkbox.check();
         }
 
+        console.log("Clicking 'Enter Address Manually'...");
+        await this.clickEnterAddressManuallyDelivery();
+      }
+
+      if (sameAsBillingAddress === "YES") {
+        console.log("Same as billing is YES - making sure it's checked.");
+        if (!(await checkbox.isChecked())) {
+          await checkbox.check();
+        }
+      }
+    }
+
+    if (countryId !== "826" || sameAsBillingAddress === "NO") {
+      console.log("Entering delivery address...");
+      if (deliveryAddress) {
         await this.enterDeliveryAddress(
           deliveryAddress.line1,
           deliveryAddress.line2,
           deliveryAddress.line3,
           deliveryAddress.townCity,
-          deliveryAddress.postcode
+          deliveryAddress.postcode,
+          countryId
         );
-      } else if (sameAsBillingAddress === "YES") {
-        if (!(await checkbox.isChecked())) {
-          await checkbox.check();
-        }
       }
     }
   }

@@ -35,7 +35,7 @@ export class PaymentPage extends BasePage {
     value: string,
     delay = this.fieldDelay
   ): Promise<void> {
-    await frame.locator(selector).fill(value, { timeout: this.defaultTimeout });
+    await frame.locator(selector).fill(String(value), { timeout: this.defaultTimeout });
     await this.page.waitForTimeout(delay);
   }
 

@@ -2,12 +2,15 @@ import { expect } from "@playwright/test";
 import { readExcelData } from "../../utils/excelReader";
 import { generateEmailWithEpoch } from "../../utils/emailGenerator";
 import { EmailHelper } from "../../utils/emailHelper";
+import { SalesforceApiHelper } from "../../utils/salesforceApiHelper";
+import { RailcardApiHelper } from "../../utils/railcardApiHelper";
+import { OrderProcessingService } from "../../utils/orderProcessingService";
 import { test } from "../../fixtures";
 import path from "path";
 
 import { Pages } from "../../pages/pages";
 
-test.setTimeout(45000);
+test.setTimeout(60000);
 
 // Read test data
 const excelPath = path.join(
@@ -28,6 +31,8 @@ test.describe("16-25 BFS Mid-Flow Purchase", () => {
   testData.forEach((data) => {
     test(`16-25 Test: ${data.TestCaseID}`, async ({ page }) => {
       const pages = new Pages(page);
+      const salesforceApiHelper = new SalesforceApiHelper();
+      const railcardApiHelper = new RailcardApiHelper();
 
       try {
         // Navigate to the Railcard Website
@@ -144,6 +149,10 @@ test.describe("16-25 BFS Mid-Flow Purchase", () => {
         // Order Confirmation Page
         await pages.confirmation.verifyOrderConfirmationPage();
         await pages.confirmation.logPaymentSummaryText();
+        const orderNumber = pages.confirmation.extractedOrderNumber;
+        if (!orderNumber) {
+          throw new Error("Order number was not extracted.");
+        }
 
         // Wait for confirmation email and extract link
         const confirmationLink = await EmailHelper.getConfirmationLink(
@@ -152,6 +161,10 @@ test.describe("16-25 BFS Mid-Flow Purchase", () => {
 
         // Open confirmation link and verify account, redirect to IDP
         await pages.verification.verifyEmailAndNavigateToIDP(confirmationLink);
+
+        // If Mature Student Railcard then access the Salesforce API and complete the Order
+        const orderProcessingService = new OrderProcessingService(salesforceApiHelper, railcardApiHelper);
+        await orderProcessingService.processMatureStudentRailcardOrder(orderNumber, data.Railcard);
 
         // Log back into account
         await pages.login.login(testEmail, data.LoginPassword);
