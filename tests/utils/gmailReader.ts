@@ -3,6 +3,8 @@ import path from "path";
 import { google } from "googleapis";
 import { OAuth2Client } from "google-auth-library";
 
+const MAX_RETRIES = parseInt(process.env.EMAIL_RETRY_COUNT || "5", 10);
+const DELAY_MS = parseInt(process.env.EMAIL_RETRY_DELAY_MS || "10000", 10);
 const EMAIL_ENVIRONMENT = "id-preproduction.railcard.co.uk";
 const TOKEN_PATH = path.join(__dirname, "..", "resources", "token.json");
 const CREDENTIALS_PATH = path.join(
@@ -100,72 +102,95 @@ export async function extractConfirmationLink(
   const auth = await authenticate();
   const gmail = google.gmail({ version: "v1", auth });
 
-  const listRes = await gmail.users.messages.list({
-    userId: "me",
-    maxResults: 10,
-    q: 'subject:"Confirm your email address" newer_than:1d',
-  });
-
-  const messages = listRes.data.messages;
-  if (!messages || messages.length === 0) {
-    throw new Error("❌ No messages found matching query");
-  }
-
-  for (const messageMeta of messages) {
-    const msg = await gmail.users.messages.get({
-      userId: "me",
-      id: messageMeta.id!,
-      format: "full",
-    });
-
-    const headers = msg.data.payload?.headers || [];
-    const toHeader = headers.find(
-      (h) => h?.name?.toLowerCase?.() === "to" && typeof h.value === "string"
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    console.log(
+      `🔎 Attempt ${attempt}/${MAX_RETRIES} to find confirmation email...`
     );
 
-    if (
-      typeof toHeader?.value !== "string" ||
-      !toHeader.value.includes(targetEmail)
-    ) {
-      console.log(`⏭️ Skipping message not sent to: ${targetEmail}`);
-      continue;
+    const listRes = await gmail.users.messages.list({
+      userId: "me",
+      maxResults: 10,
+      q: `to:${targetEmail} subject:"Confirm your email address" newer_than:1d`,
+    });
+
+    const messages = listRes.data.messages;
+    if (!messages || messages.length === 0) {
+      console.log("📭 No messages found in this attempt.");
+    } else {
+      for (const messageMeta of messages) {
+        const msg = await gmail.users.messages.get({
+          userId: "me",
+          id: messageMeta.id!,
+          format: "full",
+        });
+
+        const headers = msg.data.payload?.headers || [];
+
+        // ✅ ADD THIS LOG TO DEBUG ALL HEADERS
+        console.log(
+          "📬 All headers for message:",
+          JSON.stringify(headers, null, 2)
+        );
+
+        const deliveredToHeader = headers.find(
+          (h) => h.name?.toLowerCase() === "delivered-to"
+        );
+
+        if (
+          typeof deliveredToHeader?.value !== "string" ||
+          deliveredToHeader.value.toLowerCase() !== targetEmail.toLowerCase()
+        ) {
+          console.log(
+            `⏭️ Skipping message. Delivered-To: "${deliveredToHeader?.value}", Expected: "${targetEmail}"`
+          );
+          continue;
+        }
+
+        // ✅ Email is for the correct recipient — now extract the link
+        const parts = msg.data.payload?.parts || [];
+        const htmlPart = parts.find((p) => p.mimeType === "text/html");
+        const plainPart = parts.find((p) => p.mimeType === "text/plain");
+
+        const bodyData =
+          htmlPart?.body?.data ||
+          plainPart?.body?.data ||
+          msg.data.payload?.body?.data;
+
+        if (!bodyData) continue;
+
+        const decodedBody = Buffer.from(bodyData, "base64").toString("utf-8");
+
+        const regex = new RegExp(`https://${EMAIL_ENVIRONMENT}[^"\\s]+`, "g");
+        const matches = decodedBody.match(regex);
+
+        if (!matches || matches.length === 0) {
+          console.error(
+            "❌ No confirmation link found — full decoded body was:\n",
+            decodedBody
+          );
+          throw new Error("❌ No confirmation link found");
+        }
+
+        const confirmationLink = matches[0].replace(/&amp;/g, "&");
+
+        const separator = "═".repeat(80);
+        console.log(`\n${separator}`);
+        console.log("✅ EMAIL VERIFICATION LINK FOUND");
+        console.log(`${separator}`);
+        console.log(confirmationLink);
+        console.log(separator + "\n");
+
+        return confirmationLink;
+      }
     }
 
-    const parts = msg.data.payload?.parts || [];
-    const htmlPart = parts.find((p) => p.mimeType === "text/html");
-    const plainPart = parts.find((p) => p.mimeType === "text/plain");
-
-    const bodyData =
-      htmlPart?.body?.data ||
-      plainPart?.body?.data ||
-      msg.data.payload?.body?.data;
-
-    if (!bodyData) continue;
-
-    const decodedBody = Buffer.from(bodyData, "base64").toString("utf-8");
-
-    const regex = new RegExp(`https://${EMAIL_ENVIRONMENT}[^"\\s]+`, "g");
-    const matches = decodedBody.match(regex);
-
-    if (!matches || matches.length === 0) {
-      console.error(
-        "❌ No confirmation link found — full decoded body was:\n",
-        decodedBody
-      );
-      throw new Error("❌ No confirmation link found");
+    // Wait and retry
+    if (attempt < MAX_RETRIES) {
+      await new Promise((resolve) => setTimeout(resolve, DELAY_MS));
     }
-
-    const confirmationLink = matches[0].replace(/&amp;/g, "&");
-
-    const separator = "═".repeat(80);
-    console.log(`\n${separator}`);
-    console.log("✅ EMAIL VERIFICATION LINK FOUND");
-    console.log(`${separator}`);
-    console.log(confirmationLink);
-    console.log(separator + "\n");
-
-    return confirmationLink;
   }
 
-  throw new Error(`❌ No matching email found for recipient: ${targetEmail}`);
+  throw new Error(
+    `❌ Timed out waiting for confirmation email to: ${targetEmail}`
+  );
 }

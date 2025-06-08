@@ -20,8 +20,16 @@ interface BillingDetails {
   sameAsBillingAddress: string;
   billingAddress: Address;
   deliveryAddress?: Address;
-  fulfilment: string,
-  deliveryType: string,
+  fulfilment: string;
+  deliveryType: string;
+}
+
+interface DeliveryDetails {
+  sameAsBillingAddress: string;
+  countryId: string;
+  deliveryAddress?: Address;
+  fulfilment: string;
+  deliveryType: string;
 }
 
 export class BillingDetailsPage extends BasePage {
@@ -44,28 +52,28 @@ export class BillingDetailsPage extends BasePage {
     await this.page.click(billingDetailsLocators.phoneCountryCodeDropDown);
   }
 
-  async searchPhoneNumberCountry(CountryPrefix: string) {
+  async searchPhoneNumberCountry(countryPrefix: string) {
     await this.page.fill(
       billingDetailsLocators.phoneCountryCodeSearch,
-      CountryPrefix
+      countryPrefix
     );
   }
 
   async selectPhoneNumberCountry() {
-    const firstOption = this.page
+    await this.page
       .locator(billingDetailsLocators.phoneCountryCodeList)
-      .first();
-    await firstOption.click();
+      .first()
+      .click();
   }
 
-  async enterPhoneNumber(PhoneNumber: string) {
-    await this.page.fill(billingDetailsLocators.phoneNumberField, PhoneNumber);
+  async enterPhoneNumber(phoneNumber: string) {
+    await this.page.fill(billingDetailsLocators.phoneNumberField, phoneNumber);
   }
 
-  async selectBillingCountry(CountryId: string) {
+  async selectBillingCountry(countryId: string) {
     await this.page.selectOption(
       billingDetailsLocators.billingCountry,
-      CountryId
+      countryId
     );
   }
 
@@ -73,127 +81,39 @@ export class BillingDetailsPage extends BasePage {
     await this.page.click(billingDetailsLocators.enterAddressManually);
   }
 
-  async enterBillingAddressLine1(BillingAddressLine1: string) {
-    await this.page.fill(
-      billingDetailsLocators.addressLine1Field,
-      BillingAddressLine1
-    );
+  async fillAddressFields(locators: any, address?: Address) {
+    if (!address) return;
+
+    if (address.line1?.trim())
+      await this.page.fill(locators.addressLine1Field, address.line1);
+    if (address.line2?.trim())
+      await this.page.fill(locators.addressLine2Field, address.line2);
+    if (address.line3?.trim())
+      await this.page.fill(locators.addressLine3Field, address.line3);
+    if (address.townCity?.trim())
+      await this.page.fill(locators.townCityField, address.townCity);
+    if (address.postcode?.trim())
+      await this.page.fill(locators.postcodeField, address.postcode);
   }
 
-  async enterBillingAddressLine2(BillingAddressLine2: string) {
-    await this.page.fill(
-      billingDetailsLocators.addressLine2Field,
-      BillingAddressLine2
-    );
-  }
+  async enterBillingAddress(address?: Address) {
+    if (!address) return;
 
-  async enterBillingAddressLine3(BillingAddressLine3: string) {
-    await this.page.fill(
-      billingDetailsLocators.addressLine3Field,
-      BillingAddressLine3
-    );
-  }
-
-  async enterBillingAddressTownCity(BillingAddressTownCity: string) {
-    await this.page.fill(
-      billingDetailsLocators.townCityField,
-      BillingAddressTownCity
-    );
-  }
-
-  async enterBillingAddressPostcode(BillingAddressPostcode: string) {
-    await this.page.fill(
-      billingDetailsLocators.postcodeField,
-      BillingAddressPostcode
-    );
-  }
-
-  async enterBillingAddress(
-    BillingAddressLine1?: string,
-    BillingAddressLine2?: string,
-    BillingAddressLine3?: string,
-    BillingAddressTownCity?: string,
-    BillingAddressPostcode?: string
-  ) {
     await this.clickEnterAddressManuallyBilling();
     await this.page.waitForSelector(billingDetailsLocators.addressLine1Field, {
       state: "visible",
     });
-
-    if (BillingAddressLine1?.trim()) {
-      await this.enterBillingAddressLine1(BillingAddressLine1);
-    }
-
-    if (BillingAddressLine2?.trim()) {
-      await this.enterBillingAddressLine2(BillingAddressLine2);
-    }
-
-    if (BillingAddressLine3?.trim()) {
-      await this.enterBillingAddressLine3(BillingAddressLine3);
-    }
-
-    if (BillingAddressTownCity?.trim()) {
-      await this.enterBillingAddressTownCity(BillingAddressTownCity);
-    }
-
-    if (BillingAddressPostcode?.trim()) {
-      await this.enterBillingAddressPostcode(BillingAddressPostcode);
-    }
+    await this.fillAddressFields(billingDetailsLocators, address);
   }
 
   async clickEnterAddressManuallyDelivery() {
     await this.page.click(deliveryDetailsLocators.enterAddressManually);
   }
 
-  async enterDeliveryAddressLine1(DeliveryAddressLine1: string) {
-    await this.page.fill(
-      deliveryDetailsLocators.addressLine1Field,
-      DeliveryAddressLine1
-    );
-  }
+  async enterDeliveryAddress(address?: Address, countryId?: string) {
+    if (!address) return;
 
-  async enterDeliveryAddressLine2(DeliveryAddressLine2: string) {
-    await this.page.fill(
-      deliveryDetailsLocators.addressLine2Field,
-      DeliveryAddressLine2
-    );
-  }
-
-  async enterDeliveryAddressLine3(DeliveryAddressLine3: string) {
-    await this.page.fill(
-      deliveryDetailsLocators.addressLine3Field,
-      DeliveryAddressLine3
-    );
-  }
-
-  async enterDeliveryAddressTownCity(DeliveryAddressTownCity: string) {
-    await this.page.fill(
-      deliveryDetailsLocators.townCityField,
-      DeliveryAddressTownCity
-    );
-  }
-
-  async enterDeliveryAddressPostcode(DeliveryAddressPostcode: string) {
-    await this.page.fill(
-      deliveryDetailsLocators.postcodeField,
-      DeliveryAddressPostcode
-    );
-  }
-
-  async enterDeliveryAddress(
-    DeliveryAddressLine1?: string,
-    DeliveryAddressLine2?: string,
-    DeliveryAddressLine3?: string,
-    DeliveryAddressTownCity?: string,
-    DeliveryAddressPostcode?: string,
-    countryId?: string
-  ) {
-    console.log("Filling delivery address fields...");
-    console.log(`Country ID for delivery: ${countryId}`);
-
-    // Only click "Enter address manually" for UK (826)
     if (countryId === "826") {
-      console.log("Country is UK - clicking 'Enter address manually'.");
       await this.clickEnterAddressManuallyDelivery();
       await this.page.waitForSelector(
         deliveryDetailsLocators.addressLine1Field,
@@ -202,115 +122,67 @@ export class BillingDetailsPage extends BasePage {
         }
       );
     }
-
-    if (DeliveryAddressLine1?.trim()) {
-      console.log(`Line 1: ${DeliveryAddressLine1}`);
-      await this.enterDeliveryAddressLine1(DeliveryAddressLine1);
-    }
-    if (DeliveryAddressLine2?.trim()) {
-      console.log(`Line 2: ${DeliveryAddressLine2}`);
-      await this.enterDeliveryAddressLine2(DeliveryAddressLine2);
-    }
-    if (DeliveryAddressLine3?.trim()) {
-      console.log(`Line 3: ${DeliveryAddressLine3}`);
-      await this.enterDeliveryAddressLine3(DeliveryAddressLine3);
-    }
-    if (DeliveryAddressTownCity?.trim()) {
-      console.log(`Town/City: ${DeliveryAddressTownCity}`);
-      await this.enterDeliveryAddressTownCity(DeliveryAddressTownCity);
-    }
-    if (DeliveryAddressPostcode?.trim()) {
-      console.log(`Postcode: ${DeliveryAddressPostcode}`);
-      await this.enterDeliveryAddressPostcode(DeliveryAddressPostcode);
-    }
+    await this.fillAddressFields(deliveryDetailsLocators, address);
   }
 
   async checkSameAsBillingAddress() {
     const checkbox = this.page.locator(
       deliveryDetailsLocators.sameAsBillingCheckbox
     );
-    if (!(await checkbox.isChecked())) {
-      await checkbox.check();
-    }
+    if (!(await checkbox.isChecked())) await checkbox.check();
   }
 
   async uncheckSameAsBillingAddress() {
     const checkbox = this.page.locator(
       deliveryDetailsLocators.sameAsBillingCheckbox
     );
-    if (await checkbox.isChecked()) {
-      await checkbox.uncheck();
-    }
+    if (await checkbox.isChecked()) await checkbox.uncheck();
   }
 
-  async setSameAsBillingAddressIfRequired(
+  async setDeliveryAddress(
     countryId: string,
     sameAsBillingAddress: string,
-    deliveryAddress?: {
-      line1?: string;
-      line2?: string;
-      line3?: string;
-      townCity?: string;
-      postcode?: string;
-    }
+    deliveryAddress?: Address
   ) {
     const checkbox = this.page.locator(
       deliveryDetailsLocators.sameAsBillingCheckbox
     );
 
-    console.log(`Country ID: ${countryId}`);
-    console.log(`Same As Billing Address: ${sameAsBillingAddress}`);
-    console.log("Delivery Address:", deliveryAddress);
+    const isUK = countryId === "826";
+    const isSame = sameAsBillingAddress === "YES";
 
-    if (countryId === "826") {
-      console.log("Country is UK.");
-
-      if (sameAsBillingAddress === "NO") {
-        console.log("Same as billing is NO - clicking checkbox (uncheck).");
-        if (!(await checkbox.isChecked())) {
-          await checkbox.check();
-        }
-
-        console.log("Clicking 'Enter Address Manually'...");
+    if (isUK) {
+      if (!isSame && (await checkbox.isChecked())) {
+        // Uncheck the box if currently checked
+        await checkbox.uncheck();
+        // Open manual entry UI after unchecking
         await this.clickEnterAddressManuallyDelivery();
+        // Fill delivery address manually
+        await this.fillAddressFields(deliveryDetailsLocators, deliveryAddress);
+        return; // stop further processing as done manually here
       }
 
-      if (sameAsBillingAddress === "YES") {
-        console.log("Same as billing is YES - making sure it's checked.");
-        if (!(await checkbox.isChecked())) {
-          await checkbox.check();
-        }
+      if (isSame && !(await checkbox.isChecked())) {
+        // Check the box if not already checked
+        await checkbox.check();
+        return; // done, no need to enter address manually
       }
+
+      // If UK + YES and checkbox already checked, do nothing here (address should be same as billing)
     }
 
-    if (countryId !== "826" || sameAsBillingAddress === "NO") {
-      console.log("Entering delivery address...");
-      if (deliveryAddress) {
-        await this.enterDeliveryAddress(
-          deliveryAddress.line1,
-          deliveryAddress.line2,
-          deliveryAddress.line3,
-          deliveryAddress.townCity,
-          deliveryAddress.postcode,
-          countryId
-        );
-      }
+    // For non-UK or sameAsBillingAddress NO (but not handled above)
+    if (!isUK || sameAsBillingAddress === "NO") {
+      // This calls enterDeliveryAddress which also calls clickEnterAddressManuallyDelivery for UK internally
+      await this.enterDeliveryAddress(deliveryAddress, countryId);
     }
-  }
-
-  async selectFreeDelivery() {
-    await this.page.click(deliveryDetailsLocators.freeDelivery);
-  }
-
-  async selectSpecialDelivery() {
-    await this.page.click(deliveryDetailsLocators.specialDelivery);
   }
 
   async selectDeliveryType(deliveryType: string) {
     if (deliveryType === "FREE") {
-      await this.selectFreeDelivery();
+      await this.page.click(deliveryDetailsLocators.freeDelivery);
     } else if (deliveryType === "SPECIAL") {
-      await this.selectSpecialDelivery();
+      await this.page.click(deliveryDetailsLocators.specialDelivery);
     } else {
       throw new Error(`Unknown delivery type: ${deliveryType}`);
     }
@@ -334,21 +206,13 @@ export class BillingDetailsPage extends BasePage {
     await this.selectPhoneNumberCountry();
     await this.enterPhoneNumber(phoneNumber);
     await this.selectBillingCountry(countryId);
-    await this.enterBillingAddress(
-      billingAddress.line1,
-      billingAddress.line2,
-      billingAddress.line3,
-      billingAddress.townCity,
-      billingAddress.postcode
-    );
-
-    await this.setSameAsBillingAddressIfRequired(
+    await this.enterBillingAddress(billingAddress);
+    await this.setDeliveryAddress(
       countryId,
       sameAsBillingAddress,
       deliveryAddress
     );
 
-    // Conditionally select delivery type
     if (fulfilment === "PLASTIC") {
       await this.selectDeliveryType(deliveryType);
     }
