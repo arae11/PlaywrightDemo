@@ -107,7 +107,6 @@ export class SalesforceApiHelper {
       Accept: "application/json",
     };
 
-    console.log("🧾 Salesforce request headers:", headers);
     return headers;
   }
 
@@ -162,9 +161,6 @@ export class SalesforceApiHelper {
     const encodedQuery = encodeURIComponent(query);
     const url = `${this.instanceUrl}/services/data/v60.0/query/?q=${encodedQuery}`;
 
-    console.log(`🔍 Querying Order by number: ${orderNumber}`);
-    console.log(`🌐 Full Query URL: ${url}`);
-
     const res = await fetch(url, {
       method: "GET",
       headers: {
@@ -185,16 +181,10 @@ export class SalesforceApiHelper {
     }
 
     const result = await res.json();
-    console.log(`✅ Salesforce Order Query Result:`, result);
     return result;
   }
 
   extractOrderIdFromResponse(response: SalesforceQueryResponse): string {
-    console.log("🔍 Extracting Order ID from response...");
-
-    console.log(`📊 totalSize: ${response.totalSize}`);
-    console.log(`✅ done: ${response.done}`);
-
     if (response.totalSize !== 1) {
       throw new Error(
         `Expected exactly 1 order, but got ${response.totalSize}`
@@ -223,9 +213,6 @@ export class SalesforceApiHelper {
   ): Promise<string> {
     const response = await this.queryOrderByNumber(orderNumber);
     const sfOrderId = this.extractOrderIdFromResponse(response);
-    console.log(
-      `🚀 Salesforce Order ID for order number '${orderNumber}': ${sfOrderId}`
-    );
     return sfOrderId;
   }
 
