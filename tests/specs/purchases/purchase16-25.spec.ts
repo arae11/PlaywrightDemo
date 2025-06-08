@@ -5,6 +5,7 @@ import { EmailHelper } from "../../utils/emailHelper";
 import { SalesforceApiHelper } from "../../utils/salesforceApiHelper";
 import { RailcardApiHelper } from "../../utils/railcardApiHelper";
 import { OrderProcessingService } from "../../utils/orderProcessingService";
+import { PromocodeHelper } from "../../utils/promocodeHelper";
 import { test } from "../../fixtures";
 import path from "path";
 
@@ -33,6 +34,7 @@ test.describe("16-25 BFS Mid-Flow Purchase", () => {
       const pages = new Pages(page);
       const salesforceApiHelper = new SalesforceApiHelper();
       const railcardApiHelper = new RailcardApiHelper();
+      const promocodeHelper = new PromocodeHelper();
 
       try {
         // Navigate to the Railcard Website
@@ -63,23 +65,49 @@ test.describe("16-25 BFS Mid-Flow Purchase", () => {
           dobYear: data.DOBYear,
           phoneNumber: data.PhoneNumber,
           brailleSticker: data.BrailleSticker,
+          railcard: data.Railcard,
+          years: parseInt(data.Duration, 10) === 3 ? 3 : 1,
         });
 
-        if (data.Railcard !== "MATURE") {
-          // Select Eligibility page - select eligibility check method
-          await pages.selectEligibility.selectEligibilityCheck(
-            data.EligibilityMethod
+        let skipEligibility = false;
+        let skipPayment = false;
+        let isSantander = false;
+
+        // Get the Railcard value and promocode tags
+        if (data.Promocode !== "") {
+          const railcardPrice = promocodeHelper.getRailcardValueWithoutPromo(
+            data.Railcard,
+            data.Duration
           );
 
-          // Eligibility Validation page - enter eligibility document
-          await pages.selectEligibility.enterEligibilityNumber(
-            data.EligibilityMethod,
-            data.Passport,
-            data.DrivingLicence,
-            data.NIC
+          const flags = await promocodeHelper.verifyPromocodeTags(
+            data.Promocode,
+            data.SKU,
+            railcardPrice
           );
-        } else {
-          await pages.supportingEvidence.provideEvidence(data.EvidenceDocument);
+
+          skipEligibility = flags.skipEligibility;
+          skipPayment = flags.skipPayment;
+          isSantander = flags.isSantander;
+        }
+
+        // Go to eligibility page unless skipcode is used
+        if (!skipEligibility) {
+          if (data.Railcard === "MATURE") {
+            await pages.supportingEvidence.provideEvidence(
+              data.EvidenceDocument
+            );
+          } else {
+            await pages.selectEligibility.selectEligibilityCheck(
+              data.EligibilityMethod
+            );
+            await pages.selectEligibility.enterEligibilityNumber(
+              data.EligibilityMethod,
+              data.Passport,
+              data.DrivingLicence,
+              data.NIC
+            );
+          }
         }
 
         // Photo upload page - upload single photo

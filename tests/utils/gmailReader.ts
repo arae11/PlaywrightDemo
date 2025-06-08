@@ -126,12 +126,6 @@ export async function extractConfirmationLink(
 
         const headers = msg.data.payload?.headers || [];
 
-        // ✅ ADD THIS LOG TO DEBUG ALL HEADERS
-        console.log(
-          "📬 All headers for message:",
-          JSON.stringify(headers, null, 2)
-        );
-
         const deliveredToHeader = headers.find(
           (h) => h.name?.toLowerCase() === "delivered-to"
         );

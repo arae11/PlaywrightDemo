@@ -75,6 +75,7 @@ export const customiseRailcardLocators = {
     selectPlastic: 'xpath=//label[@for="railcard-type-option-1"]',
     selectPromoInput: '#promo-code',
     selectPromoApplyButton: 'xpath=//button[contains(text(),"Apply Code")]',
+    selectRemovePromoButton: 'button[aria-label="Remove"]',
     selectBuyForSelf: 'xpath=//label[contains(.,"for me")]',
     selectBuyOnBehalf: 'xpath=//label[contains(.,"else")]',
     selectTermsDigital: '#digital-terms-conditions-0',

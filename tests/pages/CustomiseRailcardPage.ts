@@ -32,6 +32,14 @@ export class CustomiseRailcardPage extends BasePage {
     await this.page.click(customiseRailcardLocators.selectPromoApplyButton);
   }
 
+  async removePromocode(code: string) {
+    await this.page.click(customiseRailcardLocators.selectRemovePromoButton);
+  }
+
+  async waitForPromo() {
+    await this.page.waitForSelector(customiseRailcardLocators.selectRemovePromoButton);
+  }
+
   async selectBuyForSelf() {
     await this.page.click(customiseRailcardLocators.selectBuyForSelf);
   }
@@ -75,6 +83,7 @@ export class CustomiseRailcardPage extends BasePage {
   async enterPromocodeIfPresent(Promocode: string) {
     if (Promocode && Promocode.trim() !== "") {
       await this.applyPromoCode(Promocode);
+      await this.waitForPromo();
     }
   }
 
