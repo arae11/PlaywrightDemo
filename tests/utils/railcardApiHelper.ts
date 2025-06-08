@@ -52,7 +52,13 @@ export class RailcardApiHelper {
 
     const accessToken = response.data.access_token;
 
-    console.log("✅ Token received:", accessToken);
+    // Shorten token for logging: first 8 + ... + last 4 chars
+    const shortToken =
+      accessToken.length > 12
+        ? `${accessToken.slice(0, 8)}...${accessToken.slice(-4)}`
+        : accessToken;
+
+    console.log("✅ Token received:", shortToken);
     return accessToken;
   }
 
