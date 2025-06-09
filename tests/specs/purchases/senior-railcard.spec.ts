@@ -28,12 +28,12 @@ if (!fs.existsSync(excelPath)) {
   throw new Error("Test data file missing");
 }
 
-const testDataBFS = readExcelData(excelPath, "26-30_BFS");
-const testDataBOB = readExcelData(excelPath, "26-30_BOB");
+const testDataBFS = readExcelData(excelPath, "Senior_BFS");
+const testDataBOB = readExcelData(excelPath, "Senior_BOB");
 
-test.describe("26-30 Purchase", () => {
+test.describe("Senior Purchase", () => {
   testDataBFS.forEach((data) => {
-    test(`26-30 BFS Test: ${data.TestCaseID}`, async ({ page }) => {
+    test(`Senior BFS Test: ${data.TestCaseID}`, async ({ page }) => {
       const pages = new Pages(page);
       const salesforceApiHelper = new SalesforceApiHelper();
       const railcardApiHelper = new RailcardApiHelper();
@@ -102,19 +102,27 @@ test.describe("26-30 Purchase", () => {
 
         // Go to eligibility page unless skipcode is used
         if (!skipEligibility) {
-          await pages.selectEligibility.selectEligibilityCheck(
-            data.EligibilityMethod
-          );
-          await pages.selectEligibility.enterEligibilityNumber(
-            data.EligibilityMethod,
-            data.Passport,
-            data.DrivingLicence,
-            data.NIC
-          );
+          if (data.Railcard === "MATURE") {
+            await pages.supportingEvidence.provideEvidence(
+              data.EvidenceDocument
+            );
+          } else {
+            await pages.selectEligibility.selectEligibilityCheck(
+              data.EligibilityMethod
+            );
+            await pages.selectEligibility.enterEligibilityNumber(
+              data.EligibilityMethod,
+              data.Passport,
+              data.DrivingLicence,
+              data.NIC
+            );
+          }
         }
 
         // Photo upload page - upload single photo
-        await pages.uploadPhoto.uploadPhotoSingle(data.PhotoFile);
+        if (data.Fulfilment === "DIGITAL") {
+          await pages.uploadPhoto.uploadPhotoSingle(data.PhotoFile);
+        }
 
         // Midflow register/login page - redirect to midflow IDP
         await pages.midflowLogin.midflowRegisterLogin();
@@ -184,7 +192,6 @@ test.describe("26-30 Purchase", () => {
           );
         } else {
           console.log("💸 Final price is £0.00. Skipping payment step.");
-          await pages.orderSummary.clickPurchase();
         }
 
         // Order Confirmation Page
@@ -229,7 +236,7 @@ test.describe("26-30 Purchase", () => {
     });
   });
   testDataBOB.forEach((data) => {
-    test(`26-30 BOB Test: ${data.TestCaseID}`, async ({ page }) => {
+    test(`Senior BOB Test: ${data.TestCaseID}`, async ({ page }) => {
       const pages = new Pages(page);
       const salesforceApiHelper = new SalesforceApiHelper();
       const railcardApiHelper = new RailcardApiHelper();
@@ -321,7 +328,9 @@ test.describe("26-30 Purchase", () => {
         }
 
         // Photo upload page - upload single photo
-        await pages.uploadPhoto.uploadPhotoSingle(data.PhotoFile);
+        if (data.Fulfilment === "DIGITAL") {
+          await pages.uploadPhoto.uploadPhotoSingle(data.PhotoFile);
+        }
 
         // Midflow register/login page - redirect to midflow IDP
         await pages.midflowLogin.midflowRegisterLogin();
@@ -387,7 +396,6 @@ test.describe("26-30 Purchase", () => {
           );
         } else {
           console.log("💸 Final price is £0.00. Skipping payment step.");
-          //await pages.orderSummary.clickPurchase();
         }
 
         // Order Confirmation Page

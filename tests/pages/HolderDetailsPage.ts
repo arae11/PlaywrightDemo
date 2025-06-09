@@ -18,8 +18,13 @@ interface HolderDetailsInput {
   brailleSticker?: string;
   railcard?: RailcardType; // Add railcard info
   years?: 1 | 3; // Optional years param
-  purchaseType?: 'BFS' | 'BOB';
+  purchaseType?: "BFS" | "BOB";
   email?: string;
+}
+
+export function isAgeRelatedRailcard(railcard: string): boolean {
+  const ageBasedRailcards = ["1625", "2630", "MATURE", "SENIOR"];
+  return ageBasedRailcards.includes(railcard.toUpperCase());
 }
 
 export class HolderDetailsPage extends BasePage {
@@ -40,21 +45,17 @@ export class HolderDetailsPage extends BasePage {
       railcard,
       years = 1,
       purchaseType,
-      email
+      email,
     } = details;
 
     let finalDobDay = dobDay;
     let finalDobMonth = dobMonth;
     let finalDobYear = dobYear;
 
-    // Check if DOB fields contain 'lower' or 'upper' and calculate accordingly
-    if (
-      (dobDay === "lower" || dobDay === "upper") &&
-      railcard
-    ) {
-      // We only check dobDay here because lower/upper is a single indicator;
-      // You can also check all DOB fields for consistency if needed.
+    const requiresDOB = railcard ? isAgeRelatedRailcard(railcard) : false;
 
+    // Handle boundary DOBs only if DOB is required
+    if (requiresDOB && (dobDay === "lower" || dobDay === "upper") && railcard) {
       const boundaryType = dobDay as "lower" | "upper";
 
       const calculatedDOB = calculateBoundaryDOB(railcard, boundaryType, years);
@@ -67,12 +68,28 @@ export class HolderDetailsPage extends BasePage {
     await this.page.selectOption(holderDetailsLocators.primaryTitle, title);
     await this.page.fill(holderDetailsLocators.primaryFirstName, firstName);
     await this.page.fill(holderDetailsLocators.primaryLastName, lastName);
-    await this.page.fill(holderDetailsLocators.primaryDOBDay, String(finalDobDay));
-    await this.page.fill(holderDetailsLocators.primaryDOBMonth, String(finalDobMonth));
-    await this.page.fill(holderDetailsLocators.primaryDOBYear, String(finalDobYear));
-    await this.page.fill(holderDetailsLocators.primaryPhoneNumber, String(phoneNumber));
 
-    if (purchaseType === 'BOB' && email) {
+    if (requiresDOB) {
+      await this.page.fill(
+        holderDetailsLocators.primaryDOBDay,
+        String(finalDobDay)
+      );
+      await this.page.fill(
+        holderDetailsLocators.primaryDOBMonth,
+        String(finalDobMonth)
+      );
+      await this.page.fill(
+        holderDetailsLocators.primaryDOBYear,
+        String(finalDobYear)
+      );
+    }
+
+    await this.page.fill(
+      holderDetailsLocators.primaryPhoneNumber,
+      String(phoneNumber)
+    );
+
+    if (purchaseType === "BOB" && email) {
       await this.page.fill(holderDetailsLocators.primaryEmail, email);
     }
 
