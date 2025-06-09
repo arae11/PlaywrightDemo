@@ -28,12 +28,12 @@ if (!fs.existsSync(excelPath)) {
   throw new Error("Test data file missing");
 }
 
-const testDataBFS = readExcelData(excelPath, "26-30_BFS");
-const testDataBOB = readExcelData(excelPath, "26-30_BOB");
+const testDataBFS = readExcelData(excelPath, "Two_Together_BFS");
+const testDataBOB = readExcelData(excelPath, "Two_Together_BOB");
 
-test.describe("26-30 Purchase", () => {
+test.describe("Two Together Purchase", () => {
   testDataBFS.forEach((data) => {
-    test(`26-30 BFS Test: ${data.TestCaseID}`, async ({ page }) => {
+    test(`Two Together BFS Test: ${data.TestCaseID}`, async ({ page }) => {
       const pages = new Pages(page);
       const salesforceApiHelper = new SalesforceApiHelper();
       const railcardApiHelper = new RailcardApiHelper();
@@ -67,9 +67,9 @@ test.describe("26-30 Purchase", () => {
 
         // Holder Details page - enter primary holder details
         await pages.holderDetails.fillPrimaryHolderDetails({
-          title: data.Title,
-          firstName: data.FirstName,
-          lastName: data.LastName,
+          title: data.TitlePrimary,
+          firstName: data.FirstNamePrimary,
+          lastName: data.LastNamePrimary,
           dobDay: data.DOBDay,
           dobMonth: data.DOBMonth,
           dobYear: data.DOBYear,
@@ -77,6 +77,15 @@ test.describe("26-30 Purchase", () => {
           brailleSticker: data.BrailleSticker,
           railcard: data.Railcard,
           years: parseInt(data.Duration, 10) === 3 ? 3 : 1,
+        });
+
+        // Holder Details page - enter secondary holder details
+        await pages.holderDetails.fillSecondaryHolderDetails({
+          title: data.TitleSecondary,
+          firstName: data.FirstNameSecondary,
+          lastName: data.LastNameSecondary,
+          email: emailResult.secondaryEmail!,
+          addSecondary: data.SecondaryHolder,
         });
         await pages.holderDetails.clickContinue();
 
@@ -102,28 +111,17 @@ test.describe("26-30 Purchase", () => {
           isSantander = flags.isSantander;
         }
 
-        // Go to eligibility page unless skipcode is used
-        if (!skipEligibility) {
-          await pages.selectEligibility.selectEligibilityCheck(
-            data.EligibilityMethod
-          );
-          await pages.selectEligibility.enterEligibilityNumber(
-            data.EligibilityMethod,
-            data.Passport,
-            data.DrivingLicence,
-            data.NIC
-          );
-        }
-
         // Photo upload page - upload single photo
-        await pages.uploadPhoto.uploadPhotoSingle(data.PhotoFile);
+        if (data.Fulfilment === "DIGITAL") {
+          await pages.uploadPhoto.uploadPhotoSingle(data.PhotoFile);
+        }
 
         // Midflow register/login page - redirect to midflow IDP
         await pages.midflowLogin.midflowRegisterLogin();
 
         // IDP Account Registration page - generate email and create account
         const registrationInput: RegistrationInput = {
-          email: "", // will be overridden in the method, so can be empty or any string here
+          email: "",
           password: data.LoginPassword,
           purchaseType: data.PurchaseType as "BFS" | "BOB",
           title: data.Title,
@@ -186,7 +184,6 @@ test.describe("26-30 Purchase", () => {
           );
         } else {
           console.log("💸 Final price is £0.00. Skipping payment step.");
-          await pages.orderSummary.clickPurchase();
         }
 
         // Order Confirmation Page
@@ -231,7 +228,7 @@ test.describe("26-30 Purchase", () => {
     });
   });
   testDataBOB.forEach((data) => {
-    test(`26-30 BOB Test: ${data.TestCaseID}`, async ({ page }) => {
+    test(`Two Together BOB Test: ${data.TestCaseID}`, async ({ page }) => {
       const pages = new Pages(page);
       const salesforceApiHelper = new SalesforceApiHelper();
       const railcardApiHelper = new RailcardApiHelper();
@@ -259,8 +256,7 @@ test.describe("26-30 Purchase", () => {
         const emailResult = generateEmailWithEpoch(
           data.BOBEmail,
           data.Railcard,
-          data.PurchaseType,
-          data.SecondaryHolder
+          data.PurchaseType
         );
 
         // Holder Details page - enter primary holder details
@@ -281,7 +277,6 @@ test.describe("26-30 Purchase", () => {
               ? emailResult.bobEmail!
               : emailResult.loginEmail,
         });
-        await pages.holderDetails.clickContinue();
 
         let skipEligibility = false;
         let skipPayment = false;
@@ -305,27 +300,10 @@ test.describe("26-30 Purchase", () => {
           isSantander = flags.isSantander;
         }
 
-        // Go to eligibility page unless skipcode is used
-        if (!skipEligibility) {
-          if (data.Railcard === "MATURE") {
-            await pages.supportingEvidence.provideEvidence(
-              data.EvidenceDocument
-            );
-          } else {
-            await pages.selectEligibility.selectEligibilityCheck(
-              data.EligibilityMethod
-            );
-            await pages.selectEligibility.enterEligibilityNumber(
-              data.EligibilityMethod,
-              data.Passport,
-              data.DrivingLicence,
-              data.NIC
-            );
-          }
-        }
-
         // Photo upload page - upload single photo
-        await pages.uploadPhoto.uploadPhotoSingle(data.PhotoFile);
+        if (data.Fulfilment === "DIGITAL") {
+          await pages.uploadPhoto.uploadPhotoSingle(data.PhotoFile);
+        }
 
         // Midflow register/login page - redirect to midflow IDP
         await pages.midflowLogin.midflowRegisterLogin();
@@ -391,7 +369,6 @@ test.describe("26-30 Purchase", () => {
           );
         } else {
           console.log("💸 Final price is £0.00. Skipping payment step.");
-          //await pages.orderSummary.clickPurchase();
         }
 
         // Order Confirmation Page

@@ -61,7 +61,8 @@ test.describe("16-25 Purchase", () => {
         const emailResult = generateEmailWithEpoch(
           data.LoginEmail,
           data.Railcard,
-          data.PurchaseType
+          data.PurchaseType,
+          data.SecondaryHolder
         );
 
         // Holder Details page - enter primary holder details
@@ -77,6 +78,7 @@ test.describe("16-25 Purchase", () => {
           railcard: data.Railcard,
           years: parseInt(data.Duration, 10) === 3 ? 3 : 1,
         });
+        await pages.holderDetails.clickContinue();
 
         let skipEligibility = false;
         let skipPayment = false;
@@ -261,7 +263,8 @@ test.describe("16-25 Purchase", () => {
         const emailResult = generateEmailWithEpoch(
           data.BOBEmail,
           data.Railcard,
-          data.PurchaseType
+          data.PurchaseType,
+          data.SecondaryHolder
         );
 
         // Holder Details page - enter primary holder details
@@ -282,6 +285,7 @@ test.describe("16-25 Purchase", () => {
               ? emailResult.bobEmail!
               : emailResult.loginEmail,
         });
+        await pages.holderDetails.clickContinue();
 
         let skipEligibility = false;
         let skipPayment = false;

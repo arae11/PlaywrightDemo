@@ -22,6 +22,14 @@ interface HolderDetailsInput {
   email?: string;
 }
 
+interface SecondaryDetailsInput {
+  title: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  addSecondary?: string;
+}
+
 export function isAgeRelatedRailcard(railcard: string): boolean {
   const ageBasedRailcards = ["1625", "2630", "MATURE", "SENIOR"];
   return ageBasedRailcards.includes(railcard.toUpperCase());
@@ -97,22 +105,41 @@ export class HolderDetailsPage extends BasePage {
       await this.page.check(holderDetailsLocators.primaryBrailleSticker);
     }
 
-    await this.clickContinue();
+    //await this.clickContinue();
   }
 
-  async fillSecondaryHolderDetails(details: {
-    title: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-  }) {
-    const { title, firstName, lastName, email } = details;
-
+  async checkSecondaryBox() {
     await this.page.check(holderDetailsLocators.secondaryCheckbox);
-    await this.page.selectOption(holderDetailsLocators.secondaryTitle, title);
-    await this.page.fill(holderDetailsLocators.secondaryFirstName, firstName);
-    await this.page.fill(holderDetailsLocators.secondaryLastName, lastName);
-    await this.page.fill(holderDetailsLocators.secondaryEmail, email);
+  }
+
+  async checkPermissionBox() {
     await this.page.check(holderDetailsLocators.secondaryPermission);
+  }
+
+  async fillSecondaryHolderDetails(details: SecondaryDetailsInput) {
+    const { title, firstName, lastName, email, addSecondary } = details;
+
+    // If the checkbox is visible (some railcard types), click it if requested
+    const checkboxVisible = await this.page
+      .locator(holderDetailsLocators.secondaryCheckbox)
+      .isVisible();
+
+    if (checkboxVisible && addSecondary === "YES") {
+      await this.page.check(holderDetailsLocators.secondaryCheckbox);
+    }
+
+    // Now check if the actual secondary fields are present before filling
+    const emailFieldVisible = await this.page
+      .locator(holderDetailsLocators.secondaryEmail)
+      .isVisible();
+    if (emailFieldVisible) {
+      await this.page.selectOption(holderDetailsLocators.secondaryTitle, title);
+      await this.page.fill(holderDetailsLocators.secondaryFirstName, firstName);
+      await this.page.fill(holderDetailsLocators.secondaryLastName, lastName);
+      await this.page.fill(holderDetailsLocators.secondaryEmail, email);
+      await this.checkPermissionBox();
+    } else {
+      console.warn("Secondary fields not visible — skipping fill.");
+    }
   }
 }
