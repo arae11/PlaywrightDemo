@@ -49,13 +49,13 @@ export class HolderDetailsPage extends BasePage {
 
     // Check if DOB fields contain 'lower' or 'upper' and calculate accordingly
     if (
-      (dobDay.toLowerCase() === "lower" || dobDay.toLowerCase() === "upper") &&
+      (dobDay === "lower" || dobDay === "upper") &&
       railcard
     ) {
       // We only check dobDay here because lower/upper is a single indicator;
       // You can also check all DOB fields for consistency if needed.
 
-      const boundaryType = dobDay.toLowerCase() as "lower" | "upper";
+      const boundaryType = dobDay as "lower" | "upper";
 
       const calculatedDOB = calculateBoundaryDOB(railcard, boundaryType, years);
 
@@ -67,10 +67,10 @@ export class HolderDetailsPage extends BasePage {
     await this.page.selectOption(holderDetailsLocators.primaryTitle, title);
     await this.page.fill(holderDetailsLocators.primaryFirstName, firstName);
     await this.page.fill(holderDetailsLocators.primaryLastName, lastName);
-    await this.page.fill(holderDetailsLocators.primaryDOBDay, finalDobDay);
-    await this.page.fill(holderDetailsLocators.primaryDOBMonth, finalDobMonth);
-    await this.page.fill(holderDetailsLocators.primaryDOBYear, finalDobYear);
-    await this.page.fill(holderDetailsLocators.primaryPhoneNumber, phoneNumber);
+    await this.page.fill(holderDetailsLocators.primaryDOBDay, String(finalDobDay));
+    await this.page.fill(holderDetailsLocators.primaryDOBMonth, String(finalDobMonth));
+    await this.page.fill(holderDetailsLocators.primaryDOBYear, String(finalDobYear));
+    await this.page.fill(holderDetailsLocators.primaryPhoneNumber, String(phoneNumber));
 
     if (purchaseType === 'BOB' && email) {
       await this.page.fill(holderDetailsLocators.primaryEmail, email);

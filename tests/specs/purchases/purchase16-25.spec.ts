@@ -8,6 +8,7 @@ import { OrderProcessingService } from "../../utils/orderProcessingService";
 import { PromocodeHelper } from "../../utils/promocodeHelper";
 import { test } from "../../fixtures";
 import path from "path";
+import type { RegistrationInput } from "../../pages/RegistrationPage";
 
 import { Pages } from "../../pages/pages";
 
@@ -56,6 +57,12 @@ test.describe("16-25 Mid-Flow Purchase", () => {
 
         // Getting Ready page - click continue
         await pages.gettingReady.verifyGettingReadyPage();
+
+        const emailResult = generateEmailWithEpoch(
+          data.LoginEmail,
+          data.Railcard,
+          data.PurchaseType
+        );
 
         // Holder Details page - enter primary holder details
         await pages.holderDetails.fillPrimaryHolderDetails({
@@ -119,13 +126,17 @@ test.describe("16-25 Mid-Flow Purchase", () => {
         await pages.midflowLogin.midflowRegisterLogin();
 
         // IDP Account Registration page - generate email and create account
-        const { email: testEmail } = generateEmailWithEpoch(
-          data.LoginEmail,
-          data.Railcard
-        );
+        const registrationInput: RegistrationInput = {
+          email: "", // will be overridden in the method, so can be empty or any string here
+          password: data.LoginPassword,
+          purchaseType: data.PurchaseType as "BFS" | "BOB",
+          title: data.Title,
+          firstName: data.FirstName,
+          lastName: data.LastName,
+        };
         await pages.register.midflowAccountRegistration(
-          testEmail,
-          data.LoginPassword
+          registrationInput,
+          emailResult
         );
 
         // Billing Details page - enter billing details
@@ -155,23 +166,30 @@ test.describe("16-25 Mid-Flow Purchase", () => {
         // Let's Keep in Touch page - skip keep in touch
         await pages.keepInTouch.skipKeepInTouchPage();
 
-        // Railcard Order: Summary page - check Order ## to be added
-        await pages.orderSummary.verifyCorrectPriceOnSummaryPage({
-          orderTotalLocator: orderSummaryLocators.orderTotalPrice,
-          railcard: data.Railcard,
-          years: data.Duration,
-          deliveryType: data.DeliveryType,
-          promo: data.Promocode,
-          sku: data.SKU,
-        });
+        // Railcard Order: Summary page
+        const finalPrice =
+          await pages.orderSummary.verifyCorrectPriceOnSummaryPage({
+            orderTotalLocator: orderSummaryLocators.orderTotalPrice,
+            railcard: data.Railcard,
+            years: data.Duration,
+            deliveryType: data.DeliveryType,
+            promo: data.Promocode,
+            sku: data.SKU,
+          });
 
-        // Make payment
-        await pages.payment.completePurchase(
-          data.CreditCardNumber,
-          data.CardExpiry,
-          data.CardCVC,
-          data.CardHolder
-        );
+        // Make payment unless final price is £0.00
+        console.log(`🧾 Final price before payment check: £${finalPrice} (${typeof finalPrice})`);
+        if (finalPrice !== 0) {
+          await pages.payment.completePurchase(
+            data.CreditCardNumber,
+            data.CardExpiry,
+            data.CardCVC,
+            data.CardHolder
+          );
+        } else {
+          console.log("💸 Final price is £0.00. Skipping payment step.");
+          await pages.orderSummary.clickPurchase();
+        }
 
         // Order Confirmation Page
         await pages.confirmation.verifyOrderConfirmationPage();
@@ -183,7 +201,7 @@ test.describe("16-25 Mid-Flow Purchase", () => {
 
         // Wait for confirmation email and extract link
         const confirmationLink = await EmailHelper.getConfirmationLink(
-          testEmail
+          emailResult.loginEmail
         );
 
         // Open confirmation link and verify account, redirect to IDP
@@ -200,7 +218,7 @@ test.describe("16-25 Mid-Flow Purchase", () => {
         );
 
         // Log back into account
-        await pages.login.login(testEmail, data.LoginPassword);
+        await pages.login.login(emailResult.loginEmail, data.LoginPassword);
 
         // Extract Railcard information from My Railcards page
         await pages.myRailcards.getMyRailcardDetails(data.Fulfilment);
@@ -240,6 +258,12 @@ test.describe("16-25 Mid-Flow Purchase", () => {
         // Getting Ready page - click continue
         await pages.gettingReady.verifyGettingReadyPage();
 
+        const emailResult = generateEmailWithEpoch(
+          data.BOBEmail,
+          data.Railcard,
+          data.PurchaseType
+        );
+
         // Holder Details page - enter primary holder details
         await pages.holderDetails.fillPrimaryHolderDetails({
           title: data.BOBTitle,
@@ -253,7 +277,10 @@ test.describe("16-25 Mid-Flow Purchase", () => {
           railcard: data.Railcard,
           years: parseInt(data.Duration, 10) === 3 ? 3 : 1,
           purchaseType: data.PurchaseType,
-          email: data.BOBEmail,
+          email:
+            data.PurchaseType === "BOB"
+              ? emailResult.bobEmail!
+              : emailResult.loginEmail,
         });
 
         let skipEligibility = false;
@@ -304,13 +331,16 @@ test.describe("16-25 Mid-Flow Purchase", () => {
         await pages.midflowLogin.midflowRegisterLogin();
 
         // IDP Account Registration page - generate email and create account
-        const { email: testEmail } = generateEmailWithEpoch(
-          data.LoginEmail,
-          data.Railcard
-        );
         await pages.register.midflowAccountRegistration(
-          testEmail,
-          data.LoginPassword
+          {
+            email: emailResult.loginEmail,
+            password: data.LoginPassword,
+            purchaseType: data.PurchaseType,
+            title: data.Title,
+            firstName: data.FirstName,
+            lastName: data.LastName,
+          },
+          emailResult
         );
 
         // Billing Details page - enter billing details
@@ -337,26 +367,30 @@ test.describe("16-25 Mid-Flow Purchase", () => {
           deliveryType: data.DeliveryType,
         });
 
-        // Let's Keep in Touch page - skip keep in touch
-        await pages.keepInTouch.skipKeepInTouchPage();
+        // Railcard Order: Summary page
+        const finalPrice =
+          await pages.orderSummary.verifyCorrectPriceOnSummaryPage({
+            orderTotalLocator: orderSummaryLocators.orderTotalPrice,
+            railcard: data.Railcard,
+            years: data.Duration,
+            deliveryType: data.DeliveryType,
+            promo: data.Promocode,
+            sku: data.SKU,
+          });
 
-        // Railcard Order: Summary page - check Order ## to be added
-        await pages.orderSummary.verifyCorrectPriceOnSummaryPage({
-          orderTotalLocator: orderSummaryLocators.orderTotalPrice,
-          railcard: data.Railcard,
-          years: data.Duration,
-          deliveryType: data.DeliveryType,
-          promo: data.Promocode,
-          sku: data.SKU,
-        });
-
-        // Make payment
-        await pages.payment.completePurchase(
-          data.CreditCardNumber,
-          data.CardExpiry,
-          data.CardCVC,
-          data.CardHolder
-        );
+        // Make payment unless final price is £0.00
+        console.log(`🧾 Final price before payment check: £${finalPrice} (${typeof finalPrice})`);
+        if (finalPrice !== 0) {
+          await pages.payment.completePurchase(
+            data.CreditCardNumber,
+            data.CardExpiry,
+            data.CardCVC,
+            data.CardHolder
+          );
+        } else {
+          console.log("💸 Final price is £0.00. Skipping payment step.");
+          await pages.orderSummary.clickPurchase();
+        }
 
         // Order Confirmation Page
         await pages.confirmation.verifyOrderConfirmationPage();
@@ -368,7 +402,7 @@ test.describe("16-25 Mid-Flow Purchase", () => {
 
         // Wait for confirmation email and extract link
         const confirmationLink = await EmailHelper.getConfirmationLink(
-          testEmail
+          emailResult.loginEmail
         );
 
         // Open confirmation link and verify account, redirect to IDP
@@ -385,7 +419,7 @@ test.describe("16-25 Mid-Flow Purchase", () => {
         );
 
         // Log back into account
-        await pages.login.login(testEmail, data.LoginPassword);
+        await pages.login.login(emailResult.loginEmail, data.LoginPassword);
 
         // Extract Railcard information from My Railcards page
         await pages.myRailcards.getMyRailcardDetails(data.Fulfilment);

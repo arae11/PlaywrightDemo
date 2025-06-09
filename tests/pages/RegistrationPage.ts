@@ -1,8 +1,17 @@
 import { Page, expect } from "@playwright/test";
 import { BasePage } from "./BasePage";
 import { ChooseRailcardPage } from "./ChooseRailcardPage";
-import { idpLocators } from "../resources/locators";
+import { billingDetailsLocators, idpLocators } from "../resources/locators";
 import { verificationLocators } from "../resources/locators";
+
+export interface RegistrationInput {
+  email: string;
+  password: string;
+  purchaseType: "BFS" | "BOB";
+  title?: string;
+  firstName?: string;
+  lastName?: string;
+}
 
 export class RegistrationPage extends BasePage {
   chooseRailcard: ChooseRailcardPage;
@@ -19,29 +28,30 @@ export class RegistrationPage extends BasePage {
     await this.verifyRegistrationPage();
   }
 
-  async registerNewUser(
-    title: string,
-    firstName: string,
-    lastName: string,
-    email: string,
-    password: string
-  ) {
-    await this.page.selectOption(idpLocators.registerTitleDropdown, title);
-    await this.page.fill(idpLocators.registerFirstNameField, firstName);
-    await this.page.fill(idpLocators.registerLastNameField, lastName);
-    await this.page.fill(idpLocators.registerEmailField, email);
-    await this.page.fill(idpLocators.registerPasswordField, password);
-    await this.page.click(idpLocators.registerRegisterButton);
-    await this.page.waitForSelector(
-      verificationLocators.verificationPageHeader
-    );
-  }
-
   async verifyRegistrationPage() {
-    //await this.page.waitForSelector(idpLocators.registerPageHeader);
     await expect(this.page.locator(idpLocators.registerPageHeader)).toHaveText(
       "Register for an online account"
     );
+  }
+
+  async selectTitle(title: string) {
+    await this.page.selectOption(idpLocators.registerTitleDropdown, title);
+  }
+
+  async enterFirstName(firstName: string) {
+    await this.page.fill(idpLocators.registerFirstNameField, firstName);
+  }
+
+  async enterLastName(lastName: string) {
+    await this.page.fill(idpLocators.registerLastNameField, lastName);
+  }
+
+  async enterEmailAddress(email: string) {
+    await this.page.fill(idpLocators.registerEmailField, email);
+  }
+
+  async enterPassword(password: string) {
+    await this.page.fill(idpLocators.registerPasswordField, password);
   }
 
   async clickRegister() {
@@ -54,30 +64,76 @@ export class RegistrationPage extends BasePage {
     await expect(this.page.locator("h1")).toHaveText("Login");
   }
 
-  async enterEmailAddress(email: string) {
-    await this.page.fill(idpLocators.registerEmailField, email);
-  }
-
-  async enterPassword(password: string) {
-    await this.page.fill(idpLocators.registerPasswordField, password);
-  }
-
   async clickMidflowRegisterButton() {
-    console.log(
-      "📧 Registering with email:",
-      await this.page.inputValue("#Email")
-    );
     await this.page.click(idpLocators.midflowRegisterButton, {
       force: true,
       delay: 100,
     });
+    await this.page.waitForSelector(billingDetailsLocators.pageHeader, {
+      state: "visible",
+      timeout: 10000,
+    });
   }
 
-  async midflowAccountRegistration(email: string, password: string) {
-    await this.verifyMidflowRegistrationPage();
-    await this.clickRegister();
+  async clickRegisterRegisterButton() {
+    await this.page.click(idpLocators.registerRegisterButton);
+  }
+
+  async verifyVerificationHeader() {
+    await this.page.waitForSelector(
+      verificationLocators.verificationPageHeader
+    );
+  }
+
+  async registerNewUser(input: RegistrationInput) {
+    const { email, password, purchaseType, title, firstName, lastName } = input;
+
+    // Common fields for both BFS and BOB
     await this.enterEmailAddress(email);
     await this.enterPassword(password);
-    await this.clickMidflowRegisterButton();
+
+    // BOB-specific fields
+    if (purchaseType === "BOB") {
+      if (!title || !firstName || !lastName) {
+        throw new Error(
+          "BOB registration requires title, firstName, and lastName"
+        );
+      }
+
+      await this.selectTitle(title);
+      await this.enterFirstName(firstName);
+      await this.enterLastName(lastName);
+    }
+
+    await this.clickRegisterRegisterButton();
+    //await this.verifyVerificationHeader();
+  }
+
+  async midflowAccountRegistration(
+    data: RegistrationInput,
+    emailResult: { loginEmail: string }
+  ) {
+    await this.verifyMidflowRegistrationPage();
+    await this.clickRegister();
+
+    const registrationData =
+      data.purchaseType === "BFS"
+        ? {
+            email: emailResult.loginEmail,
+            password: data.password,
+            purchaseType: data.purchaseType,
+          }
+        : {
+            email: emailResult.loginEmail,
+            password: data.password,
+            purchaseType: data.purchaseType,
+            title: data.title,
+            firstName: data.firstName,
+            lastName: data.lastName,
+          };
+
+    await this.registerNewUser(registrationData);
+    //await this.clickMidflowRegisterButton();
   }
 }
+export default RegistrationPage;

@@ -59,41 +59,59 @@ export class BillingDetailsPage extends BasePage {
     );
   }
 
-  async selectPhoneNumberCountry() {
-    await this.page
-      .locator(billingDetailsLocators.phoneCountryCodeList)
-      .first()
-      .click();
-  }
-
-  async enterPhoneNumber(phoneNumber: string) {
-    await this.page.fill(billingDetailsLocators.phoneNumberField, phoneNumber);
-  }
-
-  async selectBillingCountry(countryId: string) {
-    await this.page.selectOption(
-      billingDetailsLocators.billingCountry,
-      countryId
+  async selectPhoneNumberCountry(countryPrefix: string) {
+    // Type the search prefix
+    await this.page.fill(
+      billingDetailsLocators.phoneCountryCodeSearch,
+      countryPrefix
     );
+
+    // Look for exact visible match
+    const filteredOption = this.page.locator(
+      `${billingDetailsLocators.phoneCountryCodeList} >> :text-is("${countryPrefix}")`
+    );
+
+    await filteredOption.first().waitFor({ state: "visible", timeout: 5000 });
+    await filteredOption.first().click();
   }
+
+  async enterPhoneNumber(phoneNumber: string | number) {
+    await this.page.fill(billingDetailsLocators.phoneNumberField, String(phoneNumber));
+  }
+
+  async selectBillingCountry(countryId: string | number) {
+  await this.page.selectOption(
+    billingDetailsLocators.billingCountry,
+    String(countryId)  // Coerce number to string
+  );
+}
 
   async clickEnterAddressManuallyBilling() {
     await this.page.click(billingDetailsLocators.enterAddressManually);
   }
 
   async fillAddressFields(locators: any, address?: Address) {
-    if (!address) return;
+    if (!address) {
+      console.warn("Address object is missing.");
+      return;
+    }
 
-    if (address.line1?.trim())
-      await this.page.fill(locators.addressLine1Field, address.line1);
-    if (address.line2?.trim())
-      await this.page.fill(locators.addressLine2Field, address.line2);
-    if (address.line3?.trim())
-      await this.page.fill(locators.addressLine3Field, address.line3);
-    if (address.townCity?.trim())
-      await this.page.fill(locators.townCityField, address.townCity);
-    if (address.postcode?.trim())
-      await this.page.fill(locators.postcodeField, address.postcode);
+    const fillIfPresent = async (
+      locator: string,
+      value: any,
+      label: string
+    ) => {
+      const str = String(value ?? "").trim();
+      if (str) {
+        await this.page.fill(locator, str);
+      }
+    };
+
+    await fillIfPresent(locators.addressLine1Field, address.line1, "line1");
+    await fillIfPresent(locators.addressLine2Field, address.line2, "line2");
+    await fillIfPresent(locators.addressLine3Field, address.line3, "line3");
+    await fillIfPresent(locators.townCityField, address.townCity, "townCity");
+    await fillIfPresent(locators.postcodeField, address.postcode, "postcode");
   }
 
   async enterBillingAddress(address?: Address) {
@@ -203,7 +221,7 @@ export class BillingDetailsPage extends BasePage {
     await this.verifyBillingDetailsPage();
     await this.clickPhoneNumberDropdown();
     await this.searchPhoneNumberCountry(countryPrefix);
-    await this.selectPhoneNumberCountry();
+    await this.selectPhoneNumberCountry(countryPrefix);
     await this.enterPhoneNumber(phoneNumber);
     await this.selectBillingCountry(countryId);
     await this.enterBillingAddress(billingAddress);
