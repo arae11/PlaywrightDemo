@@ -1,8 +1,7 @@
 import { Page, expect } from "@playwright/test";
 import { BasePage } from "./BasePage";
 import { ChooseRailcardPage } from "./ChooseRailcardPage";
-import { billingDetailsLocators, idpLocators } from "../resources/locators";
-import { verificationLocators } from "../resources/locators";
+import { billingDetailsLocators, idpLocators, verificationLocators } from "../resources/locators";
 
 export interface RegistrationInput {
   email: string;

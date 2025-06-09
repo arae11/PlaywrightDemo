@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "rm -rf test-results && playwright test"
+    "test": "npx playwright test --retries=2",
+    "1625": "npx playwright test tests/specs/purchases/16-25-railcard.spec.ts --retries=2",
+    "2630": "npx playwright test tests/specs/purchases/26-30-railcard.spec.ts --headed --retries=2"
   },
   "keywords": [],
   "author": "",

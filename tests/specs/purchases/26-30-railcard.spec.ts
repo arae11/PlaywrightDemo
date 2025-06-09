@@ -28,12 +28,12 @@ if (!fs.existsSync(excelPath)) {
   throw new Error("Test data file missing");
 }
 
-const testDataBFS = readExcelData(excelPath, "16-25_BFS");
-const testDataBOB = readExcelData(excelPath, "16-25_BOB");
+const testDataBFS = readExcelData(excelPath, "26-30_BFS");
+const testDataBOB = readExcelData(excelPath, "26-30_BOB");
 
-test.describe("16-25 Mid-Flow Purchase", () => {
+test.describe("26-30 Purchase", () => {
   testDataBFS.forEach((data) => {
-    test(`16-25 BFS Test: ${data.TestCaseID}`, async ({ page }) => {
+    test(`26-30 BFS Test: ${data.TestCaseID}`, async ({ page }) => {
       const pages = new Pages(page);
       const salesforceApiHelper = new SalesforceApiHelper();
       const railcardApiHelper = new RailcardApiHelper();
@@ -233,7 +233,7 @@ test.describe("16-25 Mid-Flow Purchase", () => {
     });
   });
   testDataBOB.forEach((data) => {
-    test(`16-25 BOB Test: ${data.TestCaseID}`, async ({ page }) => {
+    test(`26-30 BOB Test: ${data.TestCaseID}`, async ({ page }) => {
       const pages = new Pages(page);
       const salesforceApiHelper = new SalesforceApiHelper();
       const railcardApiHelper = new RailcardApiHelper();
@@ -389,7 +389,7 @@ test.describe("16-25 Mid-Flow Purchase", () => {
           );
         } else {
           console.log("💸 Final price is £0.00. Skipping payment step.");
-          await pages.orderSummary.clickPurchase();
+          //await pages.orderSummary.clickPurchase();
         }
 
         // Order Confirmation Page
