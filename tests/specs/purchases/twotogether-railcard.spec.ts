@@ -112,9 +112,11 @@ test.describe("Two Together Purchase", () => {
         }
 
         // Photo upload page - upload single photo
-        if (data.Fulfilment === "DIGITAL") {
-          await pages.uploadPhoto.uploadPhotoSingle(data.PhotoFile);
-        }
+        await pages.uploadPhoto.uploadPhotoFlow({
+          dual: true,
+          photoPrimaryFileName: data.PhotoPrimary,
+          photoSecondaryFileName: data.PhotoSecondary,
+        });
 
         // Midflow register/login page - redirect to midflow IDP
         await pages.midflowLogin.midflowRegisterLogin();
@@ -254,9 +256,10 @@ test.describe("Two Together Purchase", () => {
         await pages.gettingReady.verifyGettingReadyPage();
 
         const emailResult = generateEmailWithEpoch(
-          data.BOBEmail,
+          data.LoginEmail,
           data.Railcard,
-          data.PurchaseType
+          data.PurchaseType,
+          data.SecondaryHolder
         );
 
         // Holder Details page - enter primary holder details
@@ -277,6 +280,16 @@ test.describe("Two Together Purchase", () => {
               ? emailResult.bobEmail!
               : emailResult.loginEmail,
         });
+
+        // Holder Details page - enter secondary holder details
+        await pages.holderDetails.fillSecondaryHolderDetails({
+          title: data.TitleSecondary,
+          firstName: data.FirstNameSecondary,
+          lastName: data.LastNameSecondary,
+          email: emailResult.secondaryEmail!,
+          addSecondary: data.SecondaryHolder,
+        });
+        await pages.holderDetails.clickContinue();
 
         let skipEligibility = false;
         let skipPayment = false;
@@ -301,9 +314,11 @@ test.describe("Two Together Purchase", () => {
         }
 
         // Photo upload page - upload single photo
-        if (data.Fulfilment === "DIGITAL") {
-          await pages.uploadPhoto.uploadPhotoSingle(data.PhotoFile);
-        }
+        await pages.uploadPhoto.uploadPhotoFlow({
+          dual: true,
+          photoPrimaryFileName: data.PhotoPrimary,
+          photoSecondaryFileName: data.PhotoSecondary,
+        });
 
         // Midflow register/login page - redirect to midflow IDP
         await pages.midflowLogin.midflowRegisterLogin();
@@ -314,9 +329,9 @@ test.describe("Two Together Purchase", () => {
             email: emailResult.loginEmail,
             password: data.LoginPassword,
             purchaseType: data.PurchaseType,
-            title: data.Title,
-            firstName: data.FirstName,
-            lastName: data.LastName,
+            title: data.TitlePrimary,
+            firstName: data.FirstNamePrimary,
+            lastName: data.LastNamePrimary,
           },
           emailResult
         );

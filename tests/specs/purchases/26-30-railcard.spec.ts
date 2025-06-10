@@ -116,7 +116,10 @@ test.describe("26-30 Purchase", () => {
         }
 
         // Photo upload page - upload single photo
-        await pages.uploadPhoto.uploadPhotoSingle(data.PhotoFile);
+        await pages.uploadPhoto.uploadPhotoFlow({
+          dual: false,
+          photoFileName: data.PhotoFile,
+        });
 
         // Midflow register/login page - redirect to midflow IDP
         await pages.midflowLogin.midflowRegisterLogin();
@@ -325,7 +328,10 @@ test.describe("26-30 Purchase", () => {
         }
 
         // Photo upload page - upload single photo
-        await pages.uploadPhoto.uploadPhotoSingle(data.PhotoFile);
+        await pages.uploadPhoto.uploadPhotoFlow({
+          dual: false,
+          photoFileName: data.PhotoFile,
+        });
 
         // Midflow register/login page - redirect to midflow IDP
         await pages.midflowLogin.midflowRegisterLogin();

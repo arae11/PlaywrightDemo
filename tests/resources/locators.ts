@@ -101,14 +101,14 @@ export const holderDetailsLocators = {
     primaryDOBYear: '#txtdob-year',
     primaryPhoneNumber: '#phone-number',
     primaryBrailleSticker: '#braille-sticker',
-    primaryEmail: '#email',
+    primaryEmail: 'input[name="mainHolderEmail"]',
 
     // Secondary Holder
     secondaryCheckbox: '#agree-to-additional-card-holder',
     secondaryTitle: '#title-secondary',
     secondaryFirstName: '#first-name-secondary',
     secondaryLastName: '#last-name-secondary',
-    secondaryEmail: '#email',
+    secondaryEmail: 'input[name="secondaryHolderEmail"]',
     secondaryPermission: '#agree-to-permission-of-secondary-cardholder',
 };
 
@@ -174,6 +174,7 @@ export const photoUploadLocators = {
     fileInput: 'xpath=//input[@type="file"]',
     saveButton: 'xpath=//button[@aria-label="Save"]',
     clearButton: 'button[aria-label="Clear"]',
+    deleteButton: 'button[aria-label="Delete photos"]',
 };
 
 export const midflowLoginLocators = {

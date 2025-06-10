@@ -123,7 +123,10 @@ test.describe("Senior Purchase", () => {
 
         // Photo upload page - upload single photo
         if (data.Fulfilment === "DIGITAL") {
-          await pages.uploadPhoto.uploadPhotoSingle(data.PhotoFile);
+          await pages.uploadPhoto.uploadPhotoFlow({
+            dual: false,
+            photoFileName: data.PhotoFile,
+          });
         }
 
         // Midflow register/login page - redirect to midflow IDP
@@ -333,7 +336,10 @@ test.describe("Senior Purchase", () => {
 
         // Photo upload page - upload single photo
         if (data.Fulfilment === "DIGITAL") {
-          await pages.uploadPhoto.uploadPhotoSingle(data.PhotoFile);
+          await pages.uploadPhoto.uploadPhotoFlow({
+            dual: false,
+            photoFileName: data.PhotoFile,
+          });
         }
 
         // Midflow register/login page - redirect to midflow IDP

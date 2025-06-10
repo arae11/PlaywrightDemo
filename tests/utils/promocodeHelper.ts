@@ -69,7 +69,6 @@ export class PromocodeHelper {
       throw new Error("No tags found in promocode validation response");
     }
 
-    console.log("🏷️ Tags Found:", responseData.tags);
     return responseData.tags;
   }
 
