@@ -45,7 +45,7 @@ export class MyRailcardsPage extends BasePage {
     console.log("\n\n" + divider);
     console.log("📦  RAILCARD DETAILS");
     console.log(divider);
-    console.log(`🔹 Header               : ${details.header}`);
+    console.log(`🔹 Railcard             : ${details.header}`);
     console.log(`🔹 Recipient Name       : ${details.name}`);
     console.log(`🔹 Recipient Email      : ${details.email}`);
     console.log(`🔹 Fulfilment Type      : ${details.fulfilment}`);

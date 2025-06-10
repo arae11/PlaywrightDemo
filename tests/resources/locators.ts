@@ -169,6 +169,7 @@ export const photoUploadLocators = {
     pageHeaderSingle: 'xpath=//label[contains(text(),"Photo upload")]',
     pageHeaderDual: 'xpath=//h1[contains(text(),": Photo upload")]',
     chooseFile: '#photoUpload',
+    chooseFileSingle: '#mainHolder',
     chooseFileDualA: '#dualPhotoUpload',
     chooseFileDualB: '#dualPhotoUpload-secondary',
     fileInput: 'xpath=//input[@type="file"]',

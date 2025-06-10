@@ -76,15 +76,18 @@ export class BillingDetailsPage extends BasePage {
   }
 
   async enterPhoneNumber(phoneNumber: string | number) {
-    await this.page.fill(billingDetailsLocators.phoneNumberField, String(phoneNumber));
+    await this.page.fill(
+      billingDetailsLocators.phoneNumberField,
+      String(phoneNumber)
+    );
   }
 
   async selectBillingCountry(countryId: string | number) {
-  await this.page.selectOption(
-    billingDetailsLocators.billingCountry,
-    String(countryId)  // Coerce number to string
-  );
-}
+    await this.page.selectOption(
+      billingDetailsLocators.billingCountry,
+      String(countryId) // Coerce number to string
+    );
+  }
 
   async clickEnterAddressManuallyBilling() {
     await this.page.click(billingDetailsLocators.enterAddressManually);
@@ -102,8 +105,29 @@ export class BillingDetailsPage extends BasePage {
       label: string
     ) => {
       const str = String(value ?? "").trim();
-      if (str) {
+      if (!str) {
+        console.log(`Skipping "${label}": No value provided.`);
+        return;
+      }
+
+      console.log(
+        `Attempting to fill "${label}" with "${str}" using selector: ${locator}`
+      );
+
+      const isVisible = await this.page.locator(locator).isVisible();
+      console.log(`Is "${label}" field visible?`, isVisible);
+
+      if (!isVisible) {
+        console.warn(`"${label}" field is not visible. Skipping fill.`);
+        return;
+      }
+
+      try {
         await this.page.fill(locator, str);
+        console.log(`✅ Successfully filled "${label}"`);
+      } catch (error) {
+        console.error(`❌ Failed to fill "${label}":`, error);
+        throw error; // rethrow so test still fails
       }
     };
 
@@ -170,23 +194,31 @@ export class BillingDetailsPage extends BasePage {
     const isSame = sameAsBillingAddress === "YES";
 
     if (isUK) {
-      if (!isSame && (await checkbox.isChecked())) {
-        // Uncheck the box if currently checked
-        await checkbox.uncheck();
-        // Open manual entry UI after unchecking
+      if (!isSame) {
+        if (await checkbox.isChecked()) {
+          await checkbox.click(); // triggers proper UI event
+        }
+
+        // Wait for manual entry link and click it
         await this.clickEnterAddressManuallyDelivery();
-        // Fill delivery address manually
+
+        // Wait until address fields appear
+        await this.page.waitForSelector(
+          deliveryDetailsLocators.addressLine1Field,
+          {
+            state: "visible",
+            timeout: 5000,
+          }
+        );
+
         await this.fillAddressFields(deliveryDetailsLocators, deliveryAddress);
-        return; // stop further processing as done manually here
+        return;
       }
 
       if (isSame && !(await checkbox.isChecked())) {
-        // Check the box if not already checked
         await checkbox.check();
-        return; // done, no need to enter address manually
+        return;
       }
-
-      // If UK + YES and checkbox already checked, do nothing here (address should be same as billing)
     }
 
     // For non-UK or sameAsBillingAddress NO (but not handled above)

@@ -5,7 +5,7 @@ import { paymentLocators } from "../resources/locators";
 export class PaymentPage extends BasePage {
   private readonly pageLoadTimeout = 45000; // Increased from 30s to 45s
   private readonly defaultTimeout = 30000;
-  private readonly fieldDelay = 500;
+  private readonly fieldDelay = 1000;
   private readonly initialDelay = 2000;
 
   constructor(page: Page) {
