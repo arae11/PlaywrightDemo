@@ -8,6 +8,7 @@ import { CustomiseRailcardPage } from "./CustomiseRailcardPage";
 import { HolderDetailsPage } from "./HolderDetailsPage";
 import { GettingReadyPage } from "./GettingReadyPage";
 import { SelectEligibilityPage } from "./EligibilityCheckPage";
+import { DisabilityCheckPage } from "./DisabilityCheckPage";
 import { PhotoUploadPage } from "./PhotoUploadPage";
 import { MidflowLoginPage } from "./MidflowLoginPage";
 import { BillingDetailsPage } from "./BillingDetailsPage";
@@ -29,6 +30,7 @@ export class Pages {
   readonly gettingReady: GettingReadyPage;
   readonly holderDetails: HolderDetailsPage;
   readonly selectEligibility: SelectEligibilityPage;
+  readonly selectDisability: DisabilityCheckPage;
   readonly uploadPhoto: PhotoUploadPage;
   readonly midflowLogin: MidflowLoginPage;
   readonly billingDetails: BillingDetailsPage;
@@ -50,6 +52,7 @@ export class Pages {
     this.gettingReady = new GettingReadyPage(page);
     this.holderDetails = new HolderDetailsPage(page);
     this.selectEligibility = new SelectEligibilityPage(page);
+    this.selectDisability = new DisabilityCheckPage(page);
     this.uploadPhoto = new PhotoUploadPage(page);
     this.midflowLogin = new MidflowLoginPage(page);
     this.billingDetails = new BillingDetailsPage(page);

@@ -77,6 +77,7 @@ test.describe("16-25 Purchase", () => {
           brailleSticker: data.BrailleSticker,
           railcard: data.Railcard,
           years: parseInt(data.Duration, 10) === 3 ? 3 : 1,
+          fulfilment: data.Fulfilment,
         });
         await pages.holderDetails.clickContinue();
 
@@ -183,9 +184,6 @@ test.describe("16-25 Purchase", () => {
           });
 
         // Make payment unless final price is £0.00
-        console.log(
-          `🧾 Final price before payment check: £${finalPrice} (${typeof finalPrice})`
-        );
         if (finalPrice !== 0) {
           await pages.payment.completePurchase(
             data.CreditCardNumber,
@@ -289,6 +287,7 @@ test.describe("16-25 Purchase", () => {
             data.PurchaseType === "BOB"
               ? emailResult.bobEmail!
               : emailResult.loginEmail,
+          fulfilment: data.Fulfilment,
         });
         await pages.holderDetails.clickContinue();
 
@@ -391,9 +390,6 @@ test.describe("16-25 Purchase", () => {
           });
 
         // Make payment unless final price is £0.00
-        console.log(
-          `🧾 Final price before payment check: £${finalPrice} (${typeof finalPrice})`
-        );
         if (finalPrice !== 0) {
           await pages.payment.completePurchase(
             data.CreditCardNumber,

@@ -1,5 +1,5 @@
 export type BoundaryType = 'lower' | 'upper';
-export type RailcardType = '1625' | '2630' | 'MATURE' | 'SENIOR';
+export type RailcardType = '1625' | '2630' | 'MATURE' | 'SENIOR' | 'NETWORK' | 'TWOTOGETHER' | 'FAMILYANDFRIENDS' | 'SANTANDER' | 'DPRC';
 
 interface BoundaryDOB {
   day: number;

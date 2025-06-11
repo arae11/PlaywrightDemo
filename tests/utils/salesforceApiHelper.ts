@@ -118,8 +118,6 @@ export class SalesforceApiHelper {
       return;
     }
 
-    console.log("🔄 Refreshing Salesforce token...");
-
     const params = new URLSearchParams();
     params.append("grant_type", "client_credentials");
     params.append("client_id", this.clientId);
@@ -234,8 +232,6 @@ export class SalesforceApiHelper {
     const headers = await this.getHeaders();
 
     const url = `${this.instanceUrl}/services/data/v63.0/sobjects/OrderItem/${orderItemId}`;
-
-    console.log(`🔄 Sending PATCH to update order item ${orderItemId}`);
 
     const response = await fetch(url, {
       method: "PATCH",

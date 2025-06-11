@@ -106,27 +106,18 @@ export class BillingDetailsPage extends BasePage {
     ) => {
       const str = String(value ?? "").trim();
       if (!str) {
-        console.log(`Skipping "${label}": No value provided.`);
         return;
       }
 
-      console.log(
-        `Attempting to fill "${label}" with "${str}" using selector: ${locator}`
-      );
-
       const isVisible = await this.page.locator(locator).isVisible();
-      console.log(`Is "${label}" field visible?`, isVisible);
 
       if (!isVisible) {
-        console.warn(`"${label}" field is not visible. Skipping fill.`);
         return;
       }
 
       try {
         await this.page.fill(locator, str);
-        console.log(`✅ Successfully filled "${label}"`);
       } catch (error) {
-        console.error(`❌ Failed to fill "${label}":`, error);
         throw error; // rethrow so test still fails
       }
     };

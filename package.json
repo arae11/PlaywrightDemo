@@ -3,9 +3,15 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "npx playwright test --retries=2",
-    "1625": "npx playwright test tests/specs/purchases/16-25-railcard.spec.ts --retries=2",
-    "2630": "npx playwright test tests/specs/purchases/26-30-railcard.spec.ts --headed --retries=2"
+    "test": "npx playwright test --retries=3",
+    "1625": "npx playwright test tests/specs/purchases/16-25-railcard.spec.ts --retries=3",
+    "2630": "npx playwright test tests/specs/purchases/26-30-railcard.spec.ts --headed --retries=3",
+    "senior": "npx playwright test tests/specs/purchases/senior-railcard.spec.ts --headed --retries=3",
+    "network": "npx playwright test tests/specs/purchases/network-railcard.spec.ts --headed --retries=3",
+    "santander": "npx playwright test tests/specs/purchases/santander-railcard.spec.ts --headed --retries=3",
+    "ff": "npx playwright test tests/specs/purchases/familyandfriends-railcard.spec.ts --headed --retries=3",
+    "tt": "npx playwright test tests/specs/purchases/twotogether-railcard.spec.ts --headed --retries=3",
+    "dprc": "npx playwright test tests/specs/purchases/dprc-railcard.spec.ts --headed --retries=3"
   },
   "keywords": [],
   "author": "",

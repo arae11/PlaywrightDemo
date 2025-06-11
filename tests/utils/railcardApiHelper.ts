@@ -35,8 +35,6 @@ export class RailcardApiHelper {
    * Fetches a fresh OAuth2 token using client credentials flow
    */
   async getAccessToken(): Promise<string> {
-    console.log("🔄 Requesting Railcard API token...");
-
     const { authUrl, clientId, clientSecret } = this.config;
 
     const params = new URLSearchParams();

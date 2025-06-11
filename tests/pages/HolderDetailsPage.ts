@@ -20,6 +20,7 @@ interface HolderDetailsInput {
   years?: 1 | 3; // Optional years param
   purchaseType?: "BFS" | "BOB";
   email?: string;
+  fulfilment: string;
 }
 
 interface SecondaryDetailsInput {
@@ -54,6 +55,7 @@ export class HolderDetailsPage extends BasePage {
       years = 1,
       purchaseType,
       email,
+      fulfilment,
     } = details;
 
     let finalDobDay = dobDay;
@@ -97,11 +99,16 @@ export class HolderDetailsPage extends BasePage {
       String(phoneNumber)
     );
 
-    if (purchaseType === "BOB" && email) {
+    if (purchaseType === "BOB" && email && railcard !== "FAMILYANDFRIENDS") {
+      await this.page.fill(holderDetailsLocators.singleEmail, email);
+    }
+
+    if (purchaseType === "BOB" && email && railcard === "FAMILYANDFRIENDS") {
       await this.page.fill(holderDetailsLocators.primaryEmail, email);
     }
 
-    if (brailleSticker && brailleSticker.trim() !== "") {
+    if (brailleSticker === "YES" && fulfilment === "PLASTIC") {
+      await this.page.waitForSelector(holderDetailsLocators.primaryBrailleSticker, { state: "visible", timeout: 10000 });
       await this.page.check(holderDetailsLocators.primaryBrailleSticker);
     }
 

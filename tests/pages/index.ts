@@ -9,6 +9,7 @@ export { CustomiseRailcardPage } from './CustomiseRailcardPage';
 export { GettingReadyPage } from './GettingReadyPage';
 export { HolderDetailsPage } from './HolderDetailsPage';
 export { SelectEligibilityPage } from './EligibilityCheckPage';
+export { DisabilityCheckPage } from './DisabilityCheckPage';
 export { PhotoUploadPage } from './PhotoUploadPage';
 export { MidflowLoginPage } from './MidflowLoginPage';
 export { BillingDetailsPage } from './BillingDetailsPage';

@@ -79,6 +79,7 @@ test.describe("Family and Friends Purchase", () => {
           brailleSticker: data.BrailleSticker,
           railcard: data.Railcard,
           years: parseInt(data.Duration, 10) === 3 ? 3 : 1,
+          fulfilment: data.Fulfilment,
         });
 
         // Holder Details page - enter secondary holder details
@@ -178,9 +179,6 @@ test.describe("Family and Friends Purchase", () => {
           });
 
         // Make payment unless final price is £0.00
-        console.log(
-          `🧾 Final price before payment check: £${finalPrice} (${typeof finalPrice})`
-        );
         if (finalPrice !== 0) {
           await pages.payment.completePurchase(
             data.CreditCardNumber,
@@ -285,6 +283,7 @@ test.describe("Family and Friends Purchase", () => {
             data.PurchaseType === "BOB"
               ? emailResult.bobEmail!
               : emailResult.loginEmail,
+          fulfilment: data.Fulfilment,
         });
 
         // Holder Details page - enter secondary holder details
@@ -380,9 +379,6 @@ test.describe("Family and Friends Purchase", () => {
           });
 
         // Make payment unless final price is £0.00
-        console.log(
-          `🧾 Final price before payment check: £${finalPrice} (${typeof finalPrice})`
-        );
         if (finalPrice !== 0) {
           await pages.payment.completePurchase(
             data.CreditCardNumber,

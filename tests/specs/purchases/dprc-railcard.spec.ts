@@ -28,12 +28,12 @@ if (!fs.existsSync(excelPath)) {
   throw new Error("Test data file missing");
 }
 
-const testDataBFS = readExcelData(excelPath, "Senior_BFS");
-const testDataBOB = readExcelData(excelPath, "Senior_BOB");
+const testDataBFS = readExcelData(excelPath, "Disabled_BFS");
+const testDataBOB = readExcelData(excelPath, "Disabled_BOB");
 
-test.describe("Senior Purchase", () => {
+test.describe("DPRC Purchase", () => {
   testDataBFS.forEach((data) => {
-    test(`Senior BFS Test: ${data.TestCaseID}`, async ({ page }) => {
+    test(`DPRC BFS Test: ${data.TestCaseID}`, async ({ page }) => {
       const pages = new Pages(page);
       const salesforceApiHelper = new SalesforceApiHelper();
       const railcardApiHelper = new RailcardApiHelper();
@@ -105,21 +105,10 @@ test.describe("Senior Purchase", () => {
 
         // Go to eligibility page unless skipcode is used
         if (!skipEligibility) {
-          if (data.Railcard === "MATURE") {
-            await pages.supportingEvidence.provideEvidence(
-              data.EvidenceDocument
-            );
-          } else {
-            await pages.selectEligibility.selectEligibilityCheck(
-              data.EligibilityMethod
-            );
-            await pages.selectEligibility.enterEligibilityNumber(
-              data.EligibilityMethod,
-              data.Passport,
-              data.DrivingLicence,
-              data.NIC
-            );
-          }
+          await pages.selectDisability.selectDisabilityAndEvidence(
+            data.DisabilityType,
+            data.EvidenceDocument
+          );
         }
 
         // Photo upload page - upload single photo
@@ -227,7 +216,7 @@ test.describe("Senior Purchase", () => {
         await pages.login.login(emailResult.loginEmail, data.LoginPassword);
 
         // Extract Railcard information from My Railcards page
-        await pages.myRailcards.getMyRailcardDetails(data.Fulfilment);
+        // await pages.myRailcards.getMyRailcardDetails(data.Fulfilment); - Commented out as DPRC needs DMS
 
         // Navigate to Manage Digital Railcard page and extract Railcard token
         // await pages.manageRailcards.getToken(); - Commented out as failing for some reason
@@ -239,7 +228,7 @@ test.describe("Senior Purchase", () => {
     });
   });
   testDataBOB.forEach((data) => {
-    test(`Senior BOB Test: ${data.TestCaseID}`, async ({ page }) => {
+    test(`DPRC BOB Test: ${data.TestCaseID}`, async ({ page }) => {
       const pages = new Pages(page);
       const salesforceApiHelper = new SalesforceApiHelper();
       const railcardApiHelper = new RailcardApiHelper();
@@ -283,12 +272,12 @@ test.describe("Senior Purchase", () => {
           brailleSticker: data.BrailleSticker,
           railcard: data.Railcard,
           years: parseInt(data.Duration, 10) === 3 ? 3 : 1,
+          fulfilment: data.Fulfilment,
           purchaseType: data.PurchaseType,
           email:
             data.PurchaseType === "BOB"
               ? emailResult.bobEmail!
               : emailResult.loginEmail,
-          fulfilment: data.Fulfilment,
         });
         await pages.holderDetails.clickContinue();
 
@@ -316,21 +305,10 @@ test.describe("Senior Purchase", () => {
 
         // Go to eligibility page unless skipcode is used
         if (!skipEligibility) {
-          if (data.Railcard === "MATURE") {
-            await pages.supportingEvidence.provideEvidence(
-              data.EvidenceDocument
-            );
-          } else {
-            await pages.selectEligibility.selectEligibilityCheck(
-              data.EligibilityMethod
-            );
-            await pages.selectEligibility.enterEligibilityNumber(
-              data.EligibilityMethod,
-              data.Passport,
-              data.DrivingLicence,
-              data.NIC
-            );
-          }
+          await pages.selectDisability.selectDisabilityAndEvidence(
+            data.DisabilityType,
+            data.EvidenceDocument
+          );
         }
 
         // Photo upload page - upload single photo
@@ -434,7 +412,7 @@ test.describe("Senior Purchase", () => {
         await pages.login.login(emailResult.loginEmail, data.LoginPassword);
 
         // Extract Railcard information from My Railcards page
-        await pages.myRailcards.getMyRailcardDetails(data.Fulfilment);
+        // await pages.myRailcards.getMyRailcardDetails(data.Fulfilment); - Commented out as DPRC needs DMS
 
         // Navigate to Manage Digital Railcard page and extract Railcard token
         // await pages.manageRailcards.getToken(); - Commented out as failing for some reason

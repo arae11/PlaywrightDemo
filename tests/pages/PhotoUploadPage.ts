@@ -26,7 +26,6 @@ export class PhotoUploadPage extends BasePage {
     const basePath = path.join(__dirname, "../resources/UploadFiles");
 
     const waitAfterSave = async () => {
-      console.log("Waiting 1.5 seconds after clicking Save...");
       await this.page.waitForTimeout(1500);
     };
 
@@ -34,15 +33,10 @@ export class PhotoUploadPage extends BasePage {
       // ✅ Dual card with only one holder
       if (photoPrimaryFileName && !photoSecondaryFileName) {
         const singleHolderPath = path.join(basePath, photoPrimaryFileName);
-        console.log(
-          `Uploading single photo for dualholder card with one holder: ${photoPrimaryFileName}`
-        );
 
         await this.page
           .locator(photoUploadLocators.chooseFileSingle)
           .setInputFiles(singleHolderPath);
-
-        console.log("Attempting to click Save...");
         await this.clickSave();
         await waitAfterSave();
         return;
@@ -62,8 +56,6 @@ export class PhotoUploadPage extends BasePage {
       await this.page
         .locator(photoUploadLocators.chooseFileDualA)
         .setInputFiles(primaryPath);
-
-      console.log("Clicking Save after primary...");
       await this.clickSave();
       await waitAfterSave();
 
@@ -73,17 +65,13 @@ export class PhotoUploadPage extends BasePage {
       await secondaryInput.waitFor({ state: "attached", timeout: 5000 });
 
       const isDisabled = await secondaryInput.isDisabled();
-      console.log(`Secondary input disabled: ${isDisabled}`);
       if (isDisabled) {
         throw new Error(
           "Secondary photo input is disabled, cannot upload file"
         );
       }
-
-      console.log(`Uploading secondary photo: ${photoSecondaryFileName}`);
       await secondaryInput.setInputFiles(secondaryPath);
 
-      console.log("Clicking Save after secondary...");
       await this.clickSave();
       await waitAfterSave();
     } else {
@@ -93,12 +81,10 @@ export class PhotoUploadPage extends BasePage {
       }
 
       const filePath = path.join(basePath, photoFileName);
-      console.log(`Uploading single photo: ${photoFileName}`);
       await this.page
         .locator(photoUploadLocators.chooseFile)
         .setInputFiles(filePath);
 
-      console.log("Clicking Save...");
       await this.clickSave();
       await waitAfterSave();
     }

@@ -102,6 +102,7 @@ export const holderDetailsLocators = {
     primaryPhoneNumber: '#phone-number',
     primaryBrailleSticker: '#braille-sticker',
     primaryEmail: 'input[name="mainHolderEmail"]',
+    singleEmail: '#email',
 
     // Secondary Holder
     secondaryCheckbox: '#agree-to-additional-card-holder',
@@ -141,7 +142,7 @@ export const disabilityLocators = {
     methodVisualImpairment: '//label[@for="DR003"]',
     methodDeafHeadingAid: '//label[@for="DR004"]',
     methodEpilepsy: '//label[@for="DR005"]',
-    methodAttendanceAllowance: '//label[@for="DR006"]',
+    methodPADP: '//label[@for="DR006"]',
     methodSevereDisablementAllowance: '//label[@for="DR007"]',
     methodMobilitySupplement: '//label[@for="DR008"]',
     methodServiceDisablementPension: '//label[@for="DR009"]',
@@ -149,8 +150,8 @@ export const disabilityLocators = {
 
     // Disability Upload page
     evidenceDLA: '//label[@for="DT001"]',
-    evidenceAwardLetter: '"//label[@for="DT002"]',
-    evidenceVisualImpairment: './/label[@for="DT003"]',
+    evidenceAwardLetter: '//label[@for="DT002"]',
+    evidenceVisualImpairment: '//label[@for="DT003"]',
     evidenceServiceStamp: '//label[@for="DT004"]',
     evidenceNHSBook: '//label[@for="DT005"]',
     evidenceEpilepsyPrescription: '//label[@for="DT006"]',
@@ -162,6 +163,9 @@ export const disabilityLocators = {
     evidenceAwardLetterSDA: '//label[@for="DT012"]',
     evidenceAwardLetterMobilitySupplement: '//label[@for="DT013"]',
     evidenceWarService: '//label[@for="DT014"]',
+    evidenceChooseFile: '#files',
+    evidenceUpload: 'button[aria-label="Upload"]',
+    evidenceDelete: 'a[aria-label="Delete"]',
 };
 
 export const photoUploadLocators = {
