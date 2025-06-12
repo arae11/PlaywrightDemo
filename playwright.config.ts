@@ -1,48 +1,61 @@
-import { defineConfig, devices } from '@playwright/test';
-import path from 'path';
+import { defineConfig, devices } from "@playwright/test";
+import path from "path";
+import fs from "fs";
 
-/**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
-// import dotenv from 'dotenv';
-// import path from 'path';
-// dotenv.config({ path: path.resolve(__dirname, '.env') });
+// Generate ONE timestamp for all shards
+const runName = process.env.RUN_NAME || "run";
+const timestamp =
+  process.env.UNIQUE_TIMESTAMP ||
+  new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
 
-/**
- * See https://playwright.dev/docs/test-configuration.
- */
+const baseDir = path.join("test-results", `${runName}--${timestamp}`);
+
+// Ensure all shards use the same directory
+if (!fs.existsSync(baseDir)) {
+  fs.mkdirSync(baseDir, { recursive: true });
+}
+
 export default defineConfig({
-  /* Select which test directory */
-  testDir: './tests',
-  /* Run tests in files in parallel */
+  testDir: "./tests",
   fullyParallel: true,
-  /* Fail the build on CI if you accidentally left test.only in the source code. */
-  forbidOnly: !!process.env.CI,
-  /* Retry twice on CI only, change the second number to increase retries locally */
   retries: process.env.CI ? 2 : 1,
-  /* Opt out of parallel tests on CI. Run 3 parallel tests locally */
-  workers: process.env.CI ? 1 : 8,
-  /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: [['html', { outputFolder: 'playwright-report' }]],
-  outputDir: path.join(__dirname, 'test-results'), // this redirects all artifacts (screenshots, videos, traces)
-  /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
+
+  // Force all shards to use same output
+  outputDir: path.join(baseDir, "artifacts"),
+
+  // All reporters use the same base directory
+  reporter: [
+    [
+      "html",
+      {
+        outputFolder: path.join(baseDir, "html-report"),
+        open: "never",
+      },
+    ],
+    [
+      "json",
+      {
+        outputFile: path.join(
+          baseDir,
+          `results-${process.env.TEST_SHARD_INDEX || "0"}.json`
+        ),
+      },
+    ],
+  ],
+
+  // Critical for sharding
+  workers: process.env.CI ? 1 : undefined, // Let Playwright manage workers
+  shard: process.env.CI ? { total: +process.env.TEST_SHARDS!, current: +process.env.TEST_SHARD_INDEX! } : undefined,
+
   use: {
-    /* Base URL to use in actions like `await page.goto('/')`. */
-    // baseURL: 'http://localhost:3000',
-
-    // Store screenshots only on failure
-    screenshot: 'only-on-failure',
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on-first-retry',
-
-    // headless true to run physical test
+    screenshot: "only-on-failure",
+    video: "retain-on-failure",
+    trace: "on-first-retry",
     headless: true,
     viewport: { width: 1280, height: 720 },
-    baseURL: 'https://secure-preproduction.railcard.co.uk',
+    baseURL: "https://secure-preproduction.railcard.co.uk",
   },
 
-  /* Configure projects for major browsers */
   projects: [
     // {
     //   name: 'chromium',
@@ -77,17 +90,14 @@ export default defineConfig({
     //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
     // },
     {
-      name: 'Google Chrome',
-      use: { ...devices['Desktop Chrome'], channel: 'chrome' },
+      name: "Google Chrome",
+      use: { ...devices["Desktop Chrome"], channel: "chrome" },
     },
   ],
 
-  /* Run your local dev server before starting the tests */
-  // webServer: {
-  //   command: 'npm run start',
-  //   url: 'http://localhost:3000',
-  //   reuseExistingServer: !process.env.CI,
-  // },
+  // Critical for single-folder output
+  preserveOutput: "always",
 
-  
+  // Add this to prevent multiple instances
+  maxFailures: process.env.CI ? 1 : 0,
 });

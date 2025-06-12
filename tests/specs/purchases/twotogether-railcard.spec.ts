@@ -6,33 +6,22 @@ import { SalesforceApiHelper } from "../../utils/salesforceApiHelper";
 import { RailcardApiHelper } from "../../utils/railcardApiHelper";
 import { OrderProcessingService } from "../../utils/orderProcessingService";
 import { PromocodeHelper } from "../../utils/promocodeHelper";
+import { getTestData } from '../../utils/testDataLoader';
 import { test } from "../../fixtures";
 import path from "path";
 import type { RegistrationInput } from "../../pages/RegistrationPage";
-
+import fs from "fs";
+import { orderSummaryLocators } from "@resources/locators";
 import { Pages } from "../../pages/pages";
 
 test.setTimeout(60000);
 
-// Read test data
-const excelPath = path.join(
-  __dirname,
-  "../../resources/Railcard_Purchase_BAU.xlsx"
-);
-import fs from "fs";
-import { orderSummaryLocators } from "@resources/locators";
+const testDataBFS = getTestData("Two_Together_BFS") as any[];
+const testDataBOB = getTestData("Two_Together_BOB") as any[];
 
-if (!fs.existsSync(excelPath)) {
-  console.error(`Excel file not found at: ${excelPath}`);
-  console.log("Current working directory:", process.cwd());
-  throw new Error("Test data file missing");
-}
-
-const testDataBFS = readExcelData(excelPath, "Two_Together_BFS");
-const testDataBOB = readExcelData(excelPath, "Two_Together_BOB");
 
 test.describe("Two Together Purchase", () => {
-  testDataBFS.forEach((data) => {
+  testDataBFS.forEach((data: any) => {
     test(`Two Together BFS Test: ${data.TestCaseID}`, async ({ page }) => {
       const pages = new Pages(page);
       const salesforceApiHelper = new SalesforceApiHelper();
@@ -227,7 +216,7 @@ test.describe("Two Together Purchase", () => {
       }
     });
   });
-  testDataBOB.forEach((data) => {
+  testDataBOB.forEach((data: any) => {
     test(`Two Together BOB Test: ${data.TestCaseID}`, async ({ page }) => {
       const pages = new Pages(page);
       const salesforceApiHelper = new SalesforceApiHelper();

@@ -6,32 +6,21 @@ import { SalesforceApiHelper } from "../../utils/salesforceApiHelper";
 import { RailcardApiHelper } from "../../utils/railcardApiHelper";
 import { OrderProcessingService } from "../../utils/orderProcessingService";
 import { PromocodeHelper } from "../../utils/promocodeHelper";
+import { getTestData } from '../../utils/testDataLoader';
 import { test } from "../../fixtures";
 import path from "path";
 import type { RegistrationInput } from "../../pages/RegistrationPage";
-
+import fs from "fs";
+import { orderSummaryLocators } from "@resources/locators";
 import { Pages } from "../../pages/pages";
 
 test.setTimeout(60000);
 
-// Read test data
-const excelPath = path.join(
-  __dirname,
-  "../../resources/Railcard_Purchase_BAU.xlsx"
-);
-import fs from "fs";
-import { orderSummaryLocators } from "@resources/locators";
+const testDataBFS = getTestData("Santander") as any[];
 
-if (!fs.existsSync(excelPath)) {
-  console.error(`Excel file not found at: ${excelPath}`);
-  console.log("Current working directory:", process.cwd());
-  throw new Error("Test data file missing");
-}
-
-const testDataBFS = readExcelData(excelPath, "Santander");
 
 test.describe("Santander Purchase", () => {
-  testDataBFS.forEach((data) => {
+  testDataBFS.forEach((data: any) => {
     test(`Santander BFS Test: ${data.TestCaseID}`, async ({ page }) => {
       const pages = new Pages(page);
       const salesforceApiHelper = new SalesforceApiHelper();

@@ -38,6 +38,8 @@ npm install -D ts-node typescript
 npm install --save-dev @types/node-fetch
 npm install --save-dev @types/axios
 npm install axios
+npm install --save-dev rimraf
+npm install --save-dev @types/node
 ```
 
 ## Recommended VS Code Extensions
