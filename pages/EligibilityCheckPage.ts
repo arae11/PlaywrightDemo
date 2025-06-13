@@ -35,11 +35,11 @@ export class SelectEligibilityPage extends BasePage {
     await this.selectPassport.click();
   }
 
-  async selectDrivingLicence() {
+  async selectDrivingLicenceMethod() {
     await this.selectLicence.click();
   }
 
-  async selectNIC() {
+  async selectNICMethod() {
     await this.selectNIC.click();
   }
 
@@ -48,9 +48,9 @@ export class SelectEligibilityPage extends BasePage {
     if (EligibilityMethod === "PASSPORT") {
       await this.selectPassportMethod();
     } else if (EligibilityMethod === "DRIVING") {
-      await this.selectDrivingLicence();
+      await this.selectDrivingLicenceMethod();
     } else if (EligibilityMethod === "NIC") {
-      await this.selectNIC();
+      await this.selectNICMethod();
     } else {
       throw new Error(
         `Unsupported eligibility method: ${EligibilityMethod}, please use 'PASSPORT', 'DRIVING' or 'NIC'`
