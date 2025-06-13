@@ -1,5 +1,4 @@
-import { globalLocators } from "../resources/locators";
-import { Page, expect } from "@playwright/test";
+import { Page, Locator } from "@playwright/test";
 
 export class BasePage {
   private hasClickedContinue = false;
@@ -7,13 +6,22 @@ export class BasePage {
 
   readonly page: Page;
 
+  // Declare Locators
+  readonly acceptOneTrustPopUp: Locator;
+  readonly globalContinueButton: Locator;
+  readonly globalBackButton: Locator;
+
   constructor(page: Page) {
     this.page = page;
+
+    // Initialize locators
+    this.acceptOneTrustPopUp = page.locator('#onetrust-accept-btn-handler');
+    this.globalContinueButton = page.locator('button:text-is("Continue")');
+    this.globalBackButton = page.locator('button:text-is("Back")');
   }
 
   async handleCookiePopup() {
-    await this.page
-      .locator(globalLocators.acceptOneTrustPopUp)
+    await this.acceptOneTrustPopUp
       .click({ timeout: 5000 })
       .catch(() => console.log("Cookie popup not found"));
   }
@@ -26,37 +34,30 @@ export class BasePage {
   }
 
   async clickBack() {
-    const backBtn = this.page.locator(globalLocators.globalBackButton);
-    await backBtn.waitFor({ state: "visible", timeout: 5000 });
-    await backBtn.click();
+    await this.globalBackButton.waitFor({ state: "visible", timeout: 5000 });
+    await this.globalBackButton.click();
   }
 
   async clickContinue() {
     if (this.hasClickedContinue) return;
 
-    const continueBtn = this.page.locator(globalLocators.globalContinueButton);
+    await this.globalContinueButton.waitFor({ state: "visible", timeout: 5000 });
 
-    await continueBtn.waitFor({ state: "visible", timeout: 5000 });
-
-    // Store the current URL to detect navigation
     this.lastUrl = this.page.url();
 
-    // Click and wait for navigation
     await Promise.all([
       this.page.waitForNavigation({ waitUntil: "load", timeout: 10000 }),
-      continueBtn.click(),
+      this.globalContinueButton.click(),
     ]);
 
     this.hasClickedContinue = true;
 
-    // After navigation, reset automatically
     const newUrl = this.page.url();
     if (newUrl !== this.lastUrl) {
       this.resetContinueClick();
     }
   }
 
-  // Reset manually when needed
   async resetContinueClick() {
     this.hasClickedContinue = false;
   }
@@ -64,8 +65,7 @@ export class BasePage {
   async navigateToRailcardWebsite(path = "/purchase") {
     await this.page.goto(path);
     try {
-      await this.page
-        .locator(globalLocators.acceptOneTrustPopUp)
+      await this.acceptOneTrustPopUp
         .click({ timeout: 5000 });
     } catch {
       // Cookie popup not found, continue silently
