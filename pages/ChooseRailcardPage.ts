@@ -1,81 +1,84 @@
-import { Page, expect } from "@playwright/test";
+import { Page, expect, Locator } from "@playwright/test";
 import { BasePage } from "./BasePage";
-import { chooseRailcardLocators } from "../resources/locators";
 
 export class ChooseRailcardPage extends BasePage {
+  // Declare Locators
+  readonly pageHeader: Locator;
+  readonly selectAccount: Locator;
+  readonly select16To25: Locator;
+  readonly select26To30: Locator;
+  readonly selectSenior: Locator;
+  readonly selectNetwork: Locator;
+  readonly selectDPRC: Locator;
+  readonly selectFamily: Locator;
+  readonly selectTwoTogether: Locator;
+
   constructor(page: Page) {
     super(page);
+
+    // Initialize Locators
+    this.pageHeader = page.locator('h1:has-text("Choose a Railcard")');
+    this.selectAccount = page.locator('xpath=//a[text()="Account"]');
+    this.select16To25 = page.locator('h2:has-text("16-25 Railcard")');
+    this.select26To30 = page.locator('h2:has-text("26-30 Railcard")');
+    this.selectSenior = page.locator('h2:has-text("Senior Railcard")');
+    this.selectNetwork = page.locator('h2:has-text("Network Railcard")');
+    this.selectDPRC = page.locator('h2:has-text("Disabled Persons Railcard")');
+    this.selectFamily = page.locator('h2:has-text("Family & Friends Railcard")');
+    this.selectTwoTogether = page.locator('h2:has-text("Two Together Railcard")');
   }
 
   async verifyChooseRailcardPage() {
-    await this.page.waitForSelector(chooseRailcardLocators.pageHeader);
-    await expect(
-      this.page.locator(chooseRailcardLocators.pageHeader)
-    ).toHaveText("Choose a Railcard");
+    await this.pageHeader.waitFor();
+    await expect(this.pageHeader).toHaveText("Choose a Railcard");
   }
 
   async select16To25Railcard() {
     await this.verifyChooseRailcardPage();
-    await this.page.click(chooseRailcardLocators.select16To25);
-    await expect(
-      this.page.locator('h1')
-    ).toHaveText("16-25 Railcard");
+    await this.select16To25.click();
+    await expect(this.page.locator('h1')).toHaveText("16-25 Railcard");
   }
 
   async select26To30Railcard() {
     await this.verifyChooseRailcardPage();
-    await this.page.click(chooseRailcardLocators.select26To30);
-    await expect(
-      this.page.locator('h1')
-    ).toHaveText("26-30 Railcard");
+    await this.select26To30.click();
+    await expect(this.page.locator('h1')).toHaveText("26-30 Railcard");
   }
 
   async selectSeniorRailcard() {
     await this.verifyChooseRailcardPage();
-    await this.page.click(chooseRailcardLocators.selectSenior);
-    await expect(
-      this.page.locator('h1')
-    ).toHaveText("Senior Railcard");
+    await this.selectSenior.click();
+    await expect(this.page.locator('h1')).toHaveText("Senior Railcard");
   }
 
   async selectNetworkRailcard() {
     await this.verifyChooseRailcardPage();
-    await this.page.click(chooseRailcardLocators.selectNetwork);
-    await expect(
-      this.page.locator('h1')
-    ).toHaveText("Network Railcard");
+    await this.selectNetwork.click();
+    await expect(this.page.locator('h1')).toHaveText("Network Railcard");
   }
 
   async selectDPRCRailcard() {
     await this.verifyChooseRailcardPage();
-    await this.page.click(chooseRailcardLocators.selectDPRC);
-    await expect(
-      this.page.locator('h1')
-    ).toHaveText("Disabled Persons Railcard");
+    await this.selectDPRC.click();
+    await expect(this.page.locator('h1')).toHaveText("Disabled Persons Railcard");
   }
 
   async selectTwoTogetherRailcard() {
     await this.verifyChooseRailcardPage();
-    await this.page.click(chooseRailcardLocators.selectTwoTogether);
-    await expect(
-      this.page.locator('h1')
-    ).toHaveText("Two Together Railcard");
+    await this.selectTwoTogether.click();
+    await expect(this.page.locator('h1')).toHaveText("Two Together Railcard");
   }
 
   async selectFamilyRailcard() {
     await this.verifyChooseRailcardPage();
-    await this.page.click(chooseRailcardLocators.selectFamily);
-    await expect(
-      this.page.locator('h1')
-    ).toHaveText("Family & Friends Railcard");
+    await this.selectFamily.click();
+    await expect(this.page.locator('h1')).toHaveText("Family & Friends Railcard");
   }
 
   async selectSantanderRailcard() {
     await this.verifyChooseRailcardPage();
     await this.page.goto("/purchase/santander");
-    await expect(
-      this.page.locator('h1')
-    ).toHaveText("Santander 16-25 Railcard");
+    await expect(this.page.locator('h1')).toHaveText("Santander 16-25 Railcard");
   }
 
   async selectRailcard(Railcard: string) {
@@ -104,6 +107,6 @@ export class ChooseRailcardPage extends BasePage {
 
   async navigateToAccount() {
     await this.verifyChooseRailcardPage();
-    await this.page.click(chooseRailcardLocators.selectAccount);
+    await this.selectAccount.click();
   }
 }

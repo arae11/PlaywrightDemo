@@ -1,10 +1,7 @@
-import { Page, expect } from "@playwright/test";
+import { Page, expect, Locator } from "@playwright/test";
 import { BasePage } from "./BasePage";
-import {
-  billingDetailsLocators,
-  deliveryDetailsLocators,
-} from "../resources/locators";
 
+// Address interfaces stay as is
 interface Address {
   line1?: string;
   line2?: string;
@@ -33,114 +30,136 @@ interface DeliveryDetails {
 }
 
 export class BillingDetailsPage extends BasePage {
+  // Declare Billing locators
+  readonly pageHeader: Locator;
+  readonly phoneCountryCodeDropDown: Locator;
+  readonly phoneCountryCodeSearch: Locator;
+  readonly phoneCountryCodeList: Locator;
+  readonly phoneNumberField: Locator;
+  readonly billingCountry: Locator;
+  readonly enterAddressManuallyBilling: Locator;
+  readonly billingAddressLine1: Locator;
+  readonly billingAddressLine2: Locator;
+  readonly billingAddressLine3: Locator;
+  readonly billingTownCity: Locator;
+  readonly billingPostcode: Locator;
+
+  // Declare Delivery locators
+  readonly sameAsBillingCheckbox: Locator;
+  readonly enterAddressManuallyDelivery: Locator;
+  readonly deliveryAddressLine1: Locator;
+  readonly deliveryAddressLine2: Locator;
+  readonly deliveryAddressLine3: Locator;
+  readonly deliveryTownCity: Locator;
+  readonly deliveryPostcode: Locator;
+  readonly freeDelivery: Locator;
+  readonly specialDelivery: Locator;
+
   constructor(page: Page) {
     super(page);
+
+    // Initialize Billing locators
+    this.pageHeader = page.locator("h1:has-text('Billing details')");
+    this.phoneCountryCodeDropDown = page.locator("#phoneCountryCode");
+    this.phoneCountryCodeSearch = page.locator("#phoneCountryCodeSearch");
+    this.phoneCountryCodeList = page.locator("#phoneCountryCode-listbox");
+    this.phoneNumberField = page.locator("#phoneNumber");
+    this.billingCountry = page.locator("#billingAddressCountryId");
+    this.enterAddressManuallyBilling = page.locator("#billing-enter-address-manually");
+    this.billingAddressLine1 = page.locator("#billingAddressLine1");
+    this.billingAddressLine2 = page.locator("#billingAddressLine2");
+    this.billingAddressLine3 = page.locator("#billingAddressLine3");
+    this.billingTownCity = page.locator("#billingAddressTownCity");
+    this.billingPostcode = page.locator("#billingAddressPostcode");
+
+    // Initialize Delivery locators
+    this.sameAsBillingCheckbox = page.locator("#sameAsBillingAddress");
+    this.enterAddressManuallyDelivery = page.locator("#delivery-enter-address-manually");
+    this.deliveryAddressLine1 = page.locator("#deliveryAddressLine1");
+    this.deliveryAddressLine2 = page.locator("#deliveryAddressLine2");
+    this.deliveryAddressLine3 = page.locator("#deliveryAddressLine3");
+    this.deliveryTownCity = page.locator("#deliveryAddressTownCity");
+    this.deliveryPostcode = page.locator("#deliveryAddressPostcode");
+    this.freeDelivery = page.locator("#freeDelivery");
+    this.specialDelivery = page.locator("#specialDelivery");
   }
 
   async verifyBillingDetailsPage() {
-    await this.page.waitForSelector(billingDetailsLocators.pageHeader, {
-      state: "visible",
-      timeout: 500000,
-    });
+    await this.pageHeader.waitFor({ state: "visible", timeout: 50000 });
     await this.page.waitForLoadState("domcontentloaded");
-    await expect(this.page.locator("h1")).toHaveText(
-      "My Order: Billing details"
-    );
+    await expect(this.pageHeader).toHaveText("My Order: Billing details");
   }
 
   async clickPhoneNumberDropdown() {
-    await this.page.click(billingDetailsLocators.phoneCountryCodeDropDown);
+    await this.phoneCountryCodeDropDown.click();
   }
 
   async searchPhoneNumberCountry(countryPrefix: string) {
-    await this.page.fill(
-      billingDetailsLocators.phoneCountryCodeSearch,
-      countryPrefix
-    );
+    await this.phoneCountryCodeSearch.fill(countryPrefix);
   }
 
   async selectPhoneNumberCountry(countryPrefix: string) {
-    // Type the search prefix
-    await this.page.fill(
-      billingDetailsLocators.phoneCountryCodeSearch,
-      countryPrefix
-    );
-
-    // Look for exact visible match
-    const filteredOption = this.page.locator(
-      `${billingDetailsLocators.phoneCountryCodeList} >> :text-is("${countryPrefix}")`
-    );
-
+    await this.phoneCountryCodeSearch.fill(countryPrefix);
+    const filteredOption = this.phoneCountryCodeList.locator(`:text-is("${countryPrefix}")`);
     await filteredOption.first().waitFor({ state: "visible", timeout: 5000 });
     await filteredOption.first().click();
   }
 
   async enterPhoneNumber(phoneNumber: string | number) {
-    await this.page.fill(
-      billingDetailsLocators.phoneNumberField,
-      String(phoneNumber)
-    );
+    await this.phoneNumberField.fill(String(phoneNumber));
   }
 
   async selectBillingCountry(countryId: string | number) {
-    await this.page.selectOption(
-      billingDetailsLocators.billingCountry,
-      String(countryId) // Coerce number to string
-    );
+    await this.billingCountry.selectOption(String(countryId));
   }
 
   async clickEnterAddressManuallyBilling() {
-    await this.page.click(billingDetailsLocators.enterAddressManually);
+    await this.enterAddressManuallyBilling.click();
   }
 
-  async fillAddressFields(locators: any, address?: Address) {
-    if (!address) {
-      console.warn("Address object is missing.");
-      return;
-    }
+  private async fillAddressFields(
+    addressLocators: {
+      addressLine1: Locator;
+      addressLine2: Locator;
+      addressLine3: Locator;
+      townCity: Locator;
+      postcode: Locator;
+    },
+    address?: Address
+  ) {
+    if (!address) return;
 
-    const fillIfPresent = async (
-      locator: string,
-      value: any,
-      label: string
-    ) => {
-      const str = String(value ?? "").trim();
-      if (!str) {
-        return;
-      }
-
-      const isVisible = await this.page.locator(locator).isVisible();
-
-      if (!isVisible) {
-        return;
-      }
-
-      try {
-        await this.page.fill(locator, str);
-      } catch (error) {
-        throw error; // rethrow so test still fails
+    const fillIfPresent = async (locator: Locator, value?: string) => {
+      if (value?.trim()) {
+        await locator.fill(value.trim());
       }
     };
 
-    await fillIfPresent(locators.addressLine1Field, address.line1, "line1");
-    await fillIfPresent(locators.addressLine2Field, address.line2, "line2");
-    await fillIfPresent(locators.addressLine3Field, address.line3, "line3");
-    await fillIfPresent(locators.townCityField, address.townCity, "townCity");
-    await fillIfPresent(locators.postcodeField, address.postcode, "postcode");
+    await fillIfPresent(addressLocators.addressLine1, address.line1);
+    await fillIfPresent(addressLocators.addressLine2, address.line2);
+    await fillIfPresent(addressLocators.addressLine3, address.line3);
+    await fillIfPresent(addressLocators.townCity, address.townCity);
+    await fillIfPresent(addressLocators.postcode, address.postcode);
   }
 
   async enterBillingAddress(address?: Address) {
     if (!address) return;
-
     await this.clickEnterAddressManuallyBilling();
-    await this.page.waitForSelector(billingDetailsLocators.addressLine1Field, {
-      state: "visible",
-    });
-    await this.fillAddressFields(billingDetailsLocators, address);
+    await this.billingAddressLine1.waitFor({ state: "visible" });
+    await this.fillAddressFields(
+      {
+        addressLine1: this.billingAddressLine1,
+        addressLine2: this.billingAddressLine2,
+        addressLine3: this.billingAddressLine3,
+        townCity: this.billingTownCity,
+        postcode: this.billingPostcode,
+      },
+      address
+    );
   }
 
   async clickEnterAddressManuallyDelivery() {
-    await this.page.click(deliveryDetailsLocators.enterAddressManually);
+    await this.enterAddressManuallyDelivery.click();
   }
 
   async enterDeliveryAddress(address?: Address, countryId?: string) {
@@ -148,82 +167,55 @@ export class BillingDetailsPage extends BasePage {
 
     if (countryId === "826") {
       await this.clickEnterAddressManuallyDelivery();
-      await this.page.waitForSelector(
-        deliveryDetailsLocators.addressLine1Field,
-        {
-          state: "visible",
-        }
-      );
+      await this.deliveryAddressLine1.waitFor({ state: "visible" });
     }
-    await this.fillAddressFields(deliveryDetailsLocators, address);
+    await this.fillAddressFields(
+      {
+        addressLine1: this.deliveryAddressLine1,
+        addressLine2: this.deliveryAddressLine2,
+        addressLine3: this.deliveryAddressLine3,
+        townCity: this.deliveryTownCity,
+        postcode: this.deliveryPostcode,
+      },
+      address
+    );
   }
 
   async checkSameAsBillingAddress() {
-    const checkbox = this.page.locator(
-      deliveryDetailsLocators.sameAsBillingCheckbox
-    );
-    if (!(await checkbox.isChecked())) await checkbox.check();
+    if (!(await this.sameAsBillingCheckbox.isChecked())) {
+      await this.sameAsBillingCheckbox.check();
+    }
   }
 
   async uncheckSameAsBillingAddress() {
-    const checkbox = this.page.locator(
-      deliveryDetailsLocators.sameAsBillingCheckbox
-    );
-    if (await checkbox.isChecked()) await checkbox.uncheck();
+    if (await this.sameAsBillingCheckbox.isChecked()) {
+      await this.sameAsBillingCheckbox.uncheck();
+    }
   }
 
-  async setDeliveryAddress(
-    countryId: string,
-    sameAsBillingAddress: string,
-    deliveryAddress?: Address
-  ) {
-    const checkbox = this.page.locator(
-      deliveryDetailsLocators.sameAsBillingCheckbox
-    );
-
+  async setDeliveryAddress(countryId: string, sameAsBillingAddress: string, deliveryAddress?: Address) {
     const isUK = countryId === "826";
     const isSame = sameAsBillingAddress === "YES";
 
     if (isUK) {
       if (!isSame) {
-        if (await checkbox.isChecked()) {
-          await checkbox.click(); // triggers proper UI event
-        }
-
-        // Wait for manual entry link and click it
+        await this.uncheckSameAsBillingAddress();
         await this.clickEnterAddressManuallyDelivery();
-
-        // Wait until address fields appear
-        await this.page.waitForSelector(
-          deliveryDetailsLocators.addressLine1Field,
-          {
-            state: "visible",
-            timeout: 5000,
-          }
-        );
-
-        await this.fillAddressFields(deliveryDetailsLocators, deliveryAddress);
-        return;
+        await this.deliveryAddressLine1.waitFor({ state: "visible", timeout: 5000 });
+        await this.enterDeliveryAddress(deliveryAddress, countryId);
+      } else {
+        await this.checkSameAsBillingAddress();
       }
-
-      if (isSame && !(await checkbox.isChecked())) {
-        await checkbox.check();
-        return;
-      }
-    }
-
-    // For non-UK or sameAsBillingAddress NO (but not handled above)
-    if (!isUK || sameAsBillingAddress === "NO") {
-      // This calls enterDeliveryAddress which also calls clickEnterAddressManuallyDelivery for UK internally
+    } else {
       await this.enterDeliveryAddress(deliveryAddress, countryId);
     }
   }
 
   async selectDeliveryType(deliveryType: string) {
     if (deliveryType === "FREE") {
-      await this.page.click(deliveryDetailsLocators.freeDelivery);
+      await this.freeDelivery.click();
     } else if (deliveryType === "SPECIAL") {
-      await this.page.click(deliveryDetailsLocators.specialDelivery);
+      await this.specialDelivery.click();
     } else {
       throw new Error(`Unknown delivery type: ${deliveryType}`);
     }
@@ -248,11 +240,7 @@ export class BillingDetailsPage extends BasePage {
     await this.enterPhoneNumber(phoneNumber);
     await this.selectBillingCountry(countryId);
     await this.enterBillingAddress(billingAddress);
-    await this.setDeliveryAddress(
-      countryId,
-      sameAsBillingAddress,
-      deliveryAddress
-    );
+    await this.setDeliveryAddress(countryId, sameAsBillingAddress, deliveryAddress);
 
     if (fulfilment === "PLASTIC") {
       await this.selectDeliveryType(deliveryType);
