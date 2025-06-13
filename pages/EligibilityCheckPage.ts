@@ -1,34 +1,52 @@
-import { Page, expect } from "@playwright/test";
+import { Page, Locator, expect } from "@playwright/test";
 import { BasePage } from "./BasePage";
-import { eligibilityLocators } from "../resources/locators";
 
 export class SelectEligibilityPage extends BasePage {
+  // Declare locators
+  readonly checkPageHeader: Locator;
+  readonly selectPassport: Locator;
+  readonly selectLicence: Locator;
+  readonly selectNIC: Locator;
+  readonly enterDocumentNumber: Locator;
+  readonly licenceValidationPageHeader: Locator;
+  readonly nicValidationPageHeader: Locator;
+  readonly passportValidationPageHeader: Locator;
+
   constructor(page: Page) {
     super(page);
+
+    // Initialize locators
+    this.checkPageHeader = page.locator('h1:has-text("Select an eligibility check method")');
+    this.selectPassport = page.locator('//label[@for="method-option-0"]');
+    this.selectLicence = page.locator('//label[@for="method-option-1"]');
+    this.selectNIC = page.locator('//label[@for="method-option-2"]');
+    this.enterDocumentNumber = page.locator('#seg1');
+
+    this.licenceValidationPageHeader = page.locator('h1:has-text("Driving licence validation")');
+    this.nicValidationPageHeader = page.locator('h1:has-text("Identity card validation")');
+    this.passportValidationPageHeader = page.locator('h1:has-text("Passport validation")');
   }
 
   async verifyEligibilityCheckPage() {
-    await expect(
-      this.page.locator(eligibilityLocators.checkPageHeader)
-    ).toContainText("Select an eligibility check method");
+    await expect(this.checkPageHeader).toContainText("Select an eligibility check method");
   }
 
-  async selectPassport() {
-    await this.page.click(eligibilityLocators.selectPassport);
+  async selectPassportMethod() {
+    await this.selectPassport.click();
   }
 
   async selectDrivingLicence() {
-    await this.page.click(eligibilityLocators.selectLicence);
+    await this.selectLicence.click();
   }
 
   async selectNIC() {
-    await this.page.click(eligibilityLocators.selectNIC);
+    await this.selectNIC.click();
   }
 
   async selectEligibilityCheck(EligibilityMethod: string) {
     await this.verifyEligibilityCheckPage();
     if (EligibilityMethod === "PASSPORT") {
-      await this.selectPassport();
+      await this.selectPassportMethod();
     } else if (EligibilityMethod === "DRIVING") {
       await this.selectDrivingLicence();
     } else if (EligibilityMethod === "NIC") {
@@ -42,39 +60,30 @@ export class SelectEligibilityPage extends BasePage {
   }
 
   async verifyEligibilityValidationPagePassport() {
-    await expect(
-      this.page.locator(eligibilityLocators.passportValidationPageHeader)
-    ).toContainText("Passport validation");
+    await expect(this.passportValidationPageHeader).toContainText("Passport validation");
   }
 
   async verifyEligibilityValidationPageLicence() {
-    await expect(
-      this.page.locator(eligibilityLocators.licenceValidationPageHeader)
-    ).toContainText("Driving licence validation");
+    await expect(this.licenceValidationPageHeader).toContainText("Driving licence validation");
   }
 
   async verifyEligibilityValidationPageNIC() {
-    await expect(
-      this.page.locator(eligibilityLocators.nicValidationPageHeader)
-    ).toContainText("Identity card validation");
+    await expect(this.nicValidationPageHeader).toContainText("Identity card validation");
   }
 
   async enterPassportNumber(passportNumber: string) {
-    const input = this.page.locator(eligibilityLocators.enterDocumentNumber);
-    await input.waitFor({ state: "visible" });
-    await input.fill(passportNumber);
+    await this.enterDocumentNumber.waitFor({ state: "visible" });
+    await this.enterDocumentNumber.fill(passportNumber);
   }
 
   async enterDrivingLicenceNumber(drivingLicenceNumber: string) {
-    const input = this.page.locator(eligibilityLocators.enterDocumentNumber);
-    await input.waitFor({ state: "visible" });
-    await input.fill(drivingLicenceNumber);
+    await this.enterDocumentNumber.waitFor({ state: "visible" });
+    await this.enterDocumentNumber.fill(drivingLicenceNumber);
   }
 
   async enterNICNumber(nicNumber: string) {
-    const input = this.page.locator(eligibilityLocators.enterDocumentNumber);
-    await input.waitFor({ state: "visible" });
-    await input.fill(nicNumber);
+    await this.enterDocumentNumber.waitFor({ state: "visible" });
+    await this.enterDocumentNumber.fill(nicNumber);
   }
 
   async enterEligibilityNumber(

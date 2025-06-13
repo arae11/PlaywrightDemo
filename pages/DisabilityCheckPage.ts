@@ -2,10 +2,7 @@ import { Page, Locator, expect } from "@playwright/test";
 import { BasePage } from "./BasePage";
 import path from "path";
 
-// Create a centralised DisabilityLocators class to store all selectors as Locators
-export class DisabilityLocators {
-  readonly page: Page;
-
+export class DisabilityLocators extends BasePage {
   // Disability eligibility selectors
   readonly methodDLA: Locator;
   readonly methodPIP: Locator;
@@ -38,7 +35,7 @@ export class DisabilityLocators {
   readonly evidenceDelete: Locator;
 
   constructor(page: Page) {
-    this.page = page;
+    super(page);
 
     // Eligibility
     this.methodDLA = page.locator('//label[@for="DR001"]');
@@ -76,9 +73,62 @@ export class DisabilityLocators {
 export class DisabilityCheckPage extends BasePage {
   readonly locators: DisabilityLocators;
 
+  private readonly disabilityMap: Record<string, Locator>;
+  private readonly evidenceMap: Record<string, Locator[]>;
+  private readonly disabilityAliasMap: Record<string, string>;
+
   constructor(page: Page) {
     super(page);
     this.locators = new DisabilityLocators(page);
+
+    this.disabilityMap = {
+      "DLA": this.locators.methodDLA,
+      "PIP": this.locators.methodPIP,
+      "VISUAL IMPAIRMENT": this.locators.methodVisualImpairment,
+      "DEAF OR HEARING AID": this.locators.methodDeafHeadingAid,
+      "EPILEPSY": this.locators.methodEpilepsy,
+      "AA": this.locators.methodPADP,
+      "SDA": this.locators.methodSevereDisablementAllowance,
+      "MOBILITY SUPPLEMENT": this.locators.methodMobilitySupplement,
+      "DISABLEMENT PENSION": this.locators.methodServiceDisablementPension,
+      "MOTABILITY SCHEME": this.locators.methodMotabilityScheme
+    };
+
+    this.evidenceMap = {
+      "DLA": [this.locators.evidenceDLA, this.locators.evidenceApprovalLetter],
+      "PIP": [this.locators.evidenceAwardLetterPIP, this.locators.evidenceApprovalLetter],
+      "VISUAL IMPAIRMENT": [
+        this.locators.evidenceVisualImpairment,
+        this.locators.evidenceServiceStamp,
+        this.locators.evidenceApprovalLetter
+      ],
+      "DEAF OR HEARING AID": [
+        this.locators.evidenceServiceStamp,
+        this.locators.evidenceNHSBook,
+        this.locators.evidenceApprovalLetter
+      ],
+      "EPILEPSY": [
+        this.locators.evidenceEpilepsyPrescription,
+        this.locators.evidenceEpilepsyDVLA,
+        this.locators.evidenceApprovalLetter
+      ],
+      "AA": [this.locators.evidenceAwardLetterAA, this.locators.evidenceApprovalLetter],
+      "SDA": [this.locators.evidenceAwardLetterSDA, this.locators.evidenceApprovalLetter],
+      "MOBILITY SUPPLEMENT": [
+        this.locators.evidenceAwardLetterMobilitySupplement,
+        this.locators.evidenceApprovalLetter
+      ],
+      "DISABLEMENT PENSION": [this.locators.evidenceWarService, this.locators.evidenceApprovalLetter],
+      "MOTABILITY SCHEME": [this.locators.evidenceHPAgreement, this.locators.evidenceApprovalLetter]
+    };
+
+    this.disabilityAliasMap = {
+      "MOTABILITY": "MOTABILITY SCHEME",
+      "VISUAL": "VISUAL IMPAIRMENT",
+      "DEAF OR HEARING": "DEAF OR HEARING AID",
+      "MOBILITY": "MOBILITY SUPPLEMENT",
+      "DISABLEMENT": "DISABLEMENT PENSION"
+    };
   }
 
   async verifySelectDisabilityPage() {
@@ -98,56 +148,6 @@ export class DisabilityCheckPage extends BasePage {
   async waitForDeleteButton() {
     await this.locators.evidenceDelete.waitFor({ state: "visible" });
   }
-
-  // Maps
-  private readonly disabilityMap = {
-    "DLA": this.locators.methodDLA,
-    "PIP": this.locators.methodPIP,
-    "VISUAL IMPAIRMENT": this.locators.methodVisualImpairment,
-    "DEAF OR HEARING AID": this.locators.methodDeafHeadingAid,
-    "EPILEPSY": this.locators.methodEpilepsy,
-    "AA": this.locators.methodPADP,
-    "SDA": this.locators.methodSevereDisablementAllowance,
-    "MOBILITY SUPPLEMENT": this.locators.methodMobilitySupplement,
-    "DISABLEMENT PENSION": this.locators.methodServiceDisablementPension,
-    "MOTABILITY SCHEME": this.locators.methodMotabilityScheme
-  };
-
-  private readonly evidenceMap = {
-    "DLA": [this.locators.evidenceDLA, this.locators.evidenceApprovalLetter],
-    "PIP": [this.locators.evidenceAwardLetterPIP, this.locators.evidenceApprovalLetter],
-    "VISUAL IMPAIRMENT": [
-      this.locators.evidenceVisualImpairment,
-      this.locators.evidenceServiceStamp,
-      this.locators.evidenceApprovalLetter
-    ],
-    "DEAF OR HEARING AID": [
-      this.locators.evidenceServiceStamp,
-      this.locators.evidenceNHSBook,
-      this.locators.evidenceApprovalLetter
-    ],
-    "EPILEPSY": [
-      this.locators.evidenceEpilepsyPrescription,
-      this.locators.evidenceEpilepsyDVLA,
-      this.locators.evidenceApprovalLetter
-    ],
-    "AA": [this.locators.evidenceAwardLetterAA, this.locators.evidenceApprovalLetter],
-    "SDA": [this.locators.evidenceAwardLetterSDA, this.locators.evidenceApprovalLetter],
-    "MOBILITY SUPPLEMENT": [
-      this.locators.evidenceAwardLetterMobilitySupplement,
-      this.locators.evidenceApprovalLetter
-    ],
-    "DISABLEMENT PENSION": [this.locators.evidenceWarService, this.locators.evidenceApprovalLetter],
-    "MOTABILITY SCHEME": [this.locators.evidenceHPAgreement, this.locators.evidenceApprovalLetter]
-  };
-
-  private readonly disabilityAliasMap = {
-    "MOTABILITY": "MOTABILITY SCHEME",
-    "VISUAL": "VISUAL IMPAIRMENT",
-    "DEAF OR HEARING": "DEAF OR HEARING AID",
-    "MOBILITY": "MOBILITY SUPPLEMENT",
-    "DISABLEMENT": "DISABLEMENT PENSION"
-  };
 
   private normalizeDisabilityName(rawDisability: string): string {
     const parts = rawDisability.trim().toUpperCase().split(/\s+/);
