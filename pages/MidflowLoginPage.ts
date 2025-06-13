@@ -1,21 +1,23 @@
-import { Page, expect } from "@playwright/test";
+import { Page, Locator, expect } from "@playwright/test";
 import { BasePage } from "./BasePage";
-import { midflowLoginLocators } from "../resources/locators";
 
 export class MidflowLoginPage extends BasePage {
+  readonly pageHeader: Locator;
+  readonly registerLoginButton: Locator;
+
   constructor(page: Page) {
     super(page);
+    this.pageHeader = page.locator('h1:has-text(": Login")');
+    this.registerLoginButton = page.locator('//button[@aria-label="Register / Login"]');
   }
 
   async verifyMidflowLoginPage() {
-    await this.page.locator(midflowLoginLocators.pageHeader).waitFor();
-    await expect(
-      this.page.locator(midflowLoginLocators.pageHeader)
-    ).toContainText(": Login");
+    await this.pageHeader.waitFor();
+    await expect(this.pageHeader).toContainText(": Login");
   }
 
   async clickRegisterLoginButton() {
-    await this.page.click(midflowLoginLocators.registerLoginButton);
+    await this.registerLoginButton.click();
   }
 
   async midflowRegisterLogin() {

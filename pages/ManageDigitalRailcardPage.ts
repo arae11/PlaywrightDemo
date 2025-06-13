@@ -1,24 +1,24 @@
-import { Page, expect } from "@playwright/test";
+import { Page, Locator, expect } from "@playwright/test";
 import { BasePage } from "./BasePage";
-import { manageDigitalRailcardLocators } from "../resources/locators";
 
 export class ManageDigitalRailcardPage extends BasePage {
+  readonly pageHeader: Locator;
+  readonly downloadCodeField: Locator;
+
   constructor(page: Page) {
     super(page);
+    this.pageHeader = page.locator('h1:has-text("Manage Digital Railcard")');
+    this.downloadCodeField = page.locator("#downloadCode");
   }
 
   async verifyManageDigitalRailcardPage() {
-    await this.page.waitForSelector(manageDigitalRailcardLocators.pageHeader);
-    await expect(this.page.locator("h1")).toContainText(
-      "Manage Digital Railcard"
-    );
+    await this.pageHeader.waitFor();
+    await expect(this.pageHeader).toContainText("Manage Digital Railcard");
   }
 
   async extractRailcardToken() {
-    const tokenInput = await this.page.waitForSelector(manageDigitalRailcardLocators.downloadCodeField, {
-      timeout: 80000,
-    });
-    const token = await tokenInput.getAttribute("value");
+    await this.downloadCodeField.waitFor({ timeout: 80000 });
+    const token = await this.downloadCodeField.getAttribute("value");
     if (!token) {
       throw new Error("❌ Token input appeared but no value was found.");
     }
@@ -29,6 +29,6 @@ export class ManageDigitalRailcardPage extends BasePage {
 
   async getToken() {
     await this.verifyManageDigitalRailcardPage();
-    await this.extractRailcardToken();
+    return await this.extractRailcardToken();
   }
 }
