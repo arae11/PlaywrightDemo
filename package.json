@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "gmail": "npx ts-node ./utils/authorizeGmail.ts",
     "1625": "set RUN_NAME=16-25-Purchase&& npx playwright test tests/specs/purchases/16-25-railcard.spec.ts --retries=3",
     "2630": "set RUN_NAME=26-30-Purchase&&npx playwright test tests/specs/purchases/26-30-railcard.spec.ts --retries=3",
     "clean:results": "rimraf test-results",

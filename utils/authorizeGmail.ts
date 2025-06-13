@@ -4,8 +4,8 @@ import readline from 'readline';
 import { google } from 'googleapis';
 
 // Paths to credential and token files
-const CREDENTIALS_PATH = path.join(__dirname, '..', 'resources', 'credentials.json');
-const TOKEN_PATH = path.join(__dirname, '..', 'resources', 'token.json');
+const CREDENTIALS_PATH = path.resolve(__dirname, '../resources/secrets/credentials.json');
+const TOKEN_PATH = path.resolve(__dirname, '../resources/secrets/token.json');
 
 // Utility to get user input
 function prompt(query: string): Promise<string> {

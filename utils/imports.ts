@@ -12,7 +12,6 @@ import { OrderProcessingService } from "./orderProcessingService";
 import { PromocodeHelper } from "./promocodeHelper";
 import { getTestData } from "./testDataLoader";
 
-import { orderSummaryLocators } from "../resources/locators";
 import { Pages } from "../pages/pages";
 import type { RegistrationInput } from "../pages/RegistrationPage";
 
@@ -30,7 +29,6 @@ export {
   OrderProcessingService,
   PromocodeHelper,
   getTestData,
-  orderSummaryLocators,
   Pages,
   RegistrationInput,
 };
