@@ -36,11 +36,12 @@ yarn-error.log*
 .DS_Store
 Thumbs.db
 
-# Token and credentials
-tests/resources/token.json
-tests/resources/credentials.json
-tests/resources/railcard_credentials.json
-tests/resources/salesforce_credentials.json
+# Token and credentials files
+resources/secrets/
+resources/secrets/token.json
+resources/secrets/credentials.json
+resources/secrets/railcard_credentials.json
+resources/secrets/salesforce_credentials.json
 
 # Temporary files
 *.tmp

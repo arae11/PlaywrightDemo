@@ -7,7 +7,7 @@ import { RailcardApiHelper } from "../../utils/railcardApiHelper";
 import { OrderProcessingService } from "../../utils/orderProcessingService";
 import { PromocodeHelper } from "../../utils/promocodeHelper";
 import { getTestData } from '../../utils/testDataLoader';
-import { test } from "../../fixtures";
+import { test } from "./fixtures";
 import path from "path";
 import type { RegistrationInput } from "../../pages/RegistrationPage";
 import fs from "fs";
@@ -16,14 +16,13 @@ import { Pages } from "../../pages/pages";
 
 test.setTimeout(60000);
 
-const testDataBFS = getTestData("Family_And_Friends_BFS") as any[];
-const testDataBOB = getTestData("Family_And_Friends_BOB") as any[];
+const testDataBFS = getTestData("26-30_BFS") as any[];
+const testDataBOB = getTestData("26-30_BOB") as any[];
 
-test.describe("Family and Friends Purchase", () => {
+
+test.describe("26-30 Purchase", () => {
   testDataBFS.forEach((data: any) => {
-    test(`Family and Friends BFS Test: ${data.TestCaseID}`, async ({
-      page,
-    }) => {
+    test(`26-30 BFS Test: ${data.TestCaseID}`, async ({ page }) => {
       const pages = new Pages(page);
       const salesforceApiHelper = new SalesforceApiHelper();
       const railcardApiHelper = new RailcardApiHelper();
@@ -57,9 +56,9 @@ test.describe("Family and Friends Purchase", () => {
 
         // Holder Details page - enter primary holder details
         await pages.holderDetails.fillPrimaryHolderDetails({
-          title: data.TitlePrimary,
-          firstName: data.FirstNamePrimary,
-          lastName: data.LastNamePrimary,
+          title: data.Title,
+          firstName: data.FirstName,
+          lastName: data.LastName,
           dobDay: data.DOBDay,
           dobMonth: data.DOBMonth,
           dobYear: data.DOBYear,
@@ -68,15 +67,6 @@ test.describe("Family and Friends Purchase", () => {
           railcard: data.Railcard,
           years: parseInt(data.Duration, 10) === 3 ? 3 : 1,
           fulfilment: data.Fulfilment,
-        });
-
-        // Holder Details page - enter secondary holder details
-        await pages.holderDetails.fillSecondaryHolderDetails({
-          title: data.TitleSecondary,
-          firstName: data.FirstNameSecondary,
-          lastName: data.LastNameSecondary,
-          email: emailResult.secondaryEmail!,
-          addSecondary: data.SecondaryHolder,
         });
         await pages.holderDetails.clickContinue();
 
@@ -102,21 +92,31 @@ test.describe("Family and Friends Purchase", () => {
           isSantander = flags.isSantander;
         }
 
-        // Photo upload page - upload single photo
-        if (data.Fulfilment === "DIGITAL") {
-          await pages.uploadPhoto.uploadPhotoFlow({
-            dual: true,
-            photoPrimaryFileName: data.PhotoPrimary,
-            photoSecondaryFileName: data.PhotoSecondary,
-          });
+        // Go to eligibility page unless skipcode is used
+        if (!skipEligibility) {
+          await pages.selectEligibility.selectEligibilityCheck(
+            data.EligibilityMethod
+          );
+          await pages.selectEligibility.enterEligibilityNumber(
+            data.EligibilityMethod,
+            data.Passport,
+            data.DrivingLicence,
+            data.NIC
+          );
         }
+
+        // Photo upload page - upload single photo
+        await pages.uploadPhoto.uploadPhotoFlow({
+          dual: false,
+          photoFileName: data.PhotoFile,
+        });
 
         // Midflow register/login page - redirect to midflow IDP
         await pages.midflowLogin.midflowRegisterLogin();
 
         // IDP Account Registration page - generate email and create account
         const registrationInput: RegistrationInput = {
-          email: "",
+          email: "", // will be overridden in the method, so can be empty or any string here
           password: data.LoginPassword,
           purchaseType: data.PurchaseType as "BFS" | "BOB",
           title: data.Title,
@@ -176,6 +176,7 @@ test.describe("Family and Friends Purchase", () => {
           );
         } else {
           console.log("💸 Final price is £0.00. Skipping payment step.");
+          await pages.orderSummary.clickPurchase();
         }
 
         // Order Confirmation Page
@@ -220,9 +221,7 @@ test.describe("Family and Friends Purchase", () => {
     });
   });
   testDataBOB.forEach((data: any) => {
-    test(`Family and Friends BOB Test: ${data.TestCaseID}`, async ({
-      page,
-    }) => {
+    test(`26-30 BOB Test: ${data.TestCaseID}`, async ({ page }) => {
       const pages = new Pages(page);
       const salesforceApiHelper = new SalesforceApiHelper();
       const railcardApiHelper = new RailcardApiHelper();
@@ -248,7 +247,7 @@ test.describe("Family and Friends Purchase", () => {
         await pages.gettingReady.verifyGettingReadyPage();
 
         const emailResult = generateEmailWithEpoch(
-          data.LoginEmail,
+          data.BOBEmail,
           data.Railcard,
           data.PurchaseType,
           data.SecondaryHolder
@@ -271,16 +270,7 @@ test.describe("Family and Friends Purchase", () => {
             data.PurchaseType === "BOB"
               ? emailResult.bobEmail!
               : emailResult.loginEmail,
-          fulfilment: data.Fulfilment,
-        });
-
-        // Holder Details page - enter secondary holder details
-        await pages.holderDetails.fillSecondaryHolderDetails({
-          title: data.TitleSecondary,
-          firstName: data.FirstNameSecondary,
-          lastName: data.LastNameSecondary,
-          email: emailResult.secondaryEmail!,
-          addSecondary: data.SecondaryHolder,
+            fulfilment: data.Fulfilment,
         });
         await pages.holderDetails.clickContinue();
 
@@ -306,14 +296,30 @@ test.describe("Family and Friends Purchase", () => {
           isSantander = flags.isSantander;
         }
 
-        // Photo upload page - upload single photo
-        if (data.Fulfilment === "DIGITAL") {
-          await pages.uploadPhoto.uploadPhotoFlow({
-            dual: true,
-            photoPrimaryFileName: data.PhotoPrimary,
-            photoSecondaryFileName: data.PhotoSecondary,
-          });
+        // Go to eligibility page unless skipcode is used
+        if (!skipEligibility) {
+          if (data.Railcard === "MATURE") {
+            await pages.supportingEvidence.provideEvidence(
+              data.EvidenceDocument
+            );
+          } else {
+            await pages.selectEligibility.selectEligibilityCheck(
+              data.EligibilityMethod
+            );
+            await pages.selectEligibility.enterEligibilityNumber(
+              data.EligibilityMethod,
+              data.Passport,
+              data.DrivingLicence,
+              data.NIC
+            );
+          }
         }
+
+        // Photo upload page - upload single photo
+        await pages.uploadPhoto.uploadPhotoFlow({
+          dual: false,
+          photoFileName: data.PhotoFile,
+        });
 
         // Midflow register/login page - redirect to midflow IDP
         await pages.midflowLogin.midflowRegisterLogin();
@@ -324,9 +330,9 @@ test.describe("Family and Friends Purchase", () => {
             email: emailResult.loginEmail,
             password: data.LoginPassword,
             purchaseType: data.PurchaseType,
-            title: data.TitlePrimary,
-            firstName: data.FirstNamePrimary,
-            lastName: data.LastNamePrimary,
+            title: data.Title,
+            firstName: data.FirstName,
+            lastName: data.LastName,
           },
           emailResult
         );
@@ -376,6 +382,7 @@ test.describe("Family and Friends Purchase", () => {
           );
         } else {
           console.log("💸 Final price is £0.00. Skipping payment step.");
+          //await pages.orderSummary.clickPurchase();
         }
 
         // Order Confirmation Page

@@ -7,7 +7,7 @@ import { RailcardApiHelper } from "../../utils/railcardApiHelper";
 import { OrderProcessingService } from "../../utils/orderProcessingService";
 import { PromocodeHelper } from "../../utils/promocodeHelper";
 import { getTestData } from '../../utils/testDataLoader';
-import { test } from "../../fixtures";
+import { test } from "./fixtures";
 import path from "path";
 import type { RegistrationInput } from "../../pages/RegistrationPage";
 import fs from "fs";
@@ -16,12 +16,13 @@ import { Pages } from "../../pages/pages";
 
 test.setTimeout(60000);
 
-const testDataBFS = getTestData("Network_BFS") as any[];
-const testDataBOB = getTestData("Network_BOB") as any[];
+const testDataBFS = getTestData("Senior_BFS") as any[];
+const testDataBOB = getTestData("Senior_BOB") as any[];
 
-test.describe("Network Purchase", () => {
+
+test.describe("Senior Purchase", () => {
   testDataBFS.forEach((data: any) => {
-    test(`Network BFS Test: ${data.TestCaseID}`, async ({ page }) => {
+    test(`Senior BFS Test: ${data.TestCaseID}`, async ({ page }) => {
       const pages = new Pages(page);
       const salesforceApiHelper = new SalesforceApiHelper();
       const railcardApiHelper = new RailcardApiHelper();
@@ -91,6 +92,25 @@ test.describe("Network Purchase", () => {
           isSantander = flags.isSantander;
         }
 
+        // Go to eligibility page unless skipcode is used
+        if (!skipEligibility) {
+          if (data.Railcard === "MATURE") {
+            await pages.supportingEvidence.provideEvidence(
+              data.EvidenceDocument
+            );
+          } else {
+            await pages.selectEligibility.selectEligibilityCheck(
+              data.EligibilityMethod
+            );
+            await pages.selectEligibility.enterEligibilityNumber(
+              data.EligibilityMethod,
+              data.Passport,
+              data.DrivingLicence,
+              data.NIC
+            );
+          }
+        }
+
         // Photo upload page - upload single photo
         if (data.Fulfilment === "DIGITAL") {
           await pages.uploadPhoto.uploadPhotoFlow({
@@ -104,7 +124,7 @@ test.describe("Network Purchase", () => {
 
         // IDP Account Registration page - generate email and create account
         const registrationInput: RegistrationInput = {
-          email: "",
+          email: "", // will be overridden in the method, so can be empty or any string here
           password: data.LoginPassword,
           purchaseType: data.PurchaseType as "BFS" | "BOB",
           title: data.Title,
@@ -208,7 +228,7 @@ test.describe("Network Purchase", () => {
     });
   });
   testDataBOB.forEach((data: any) => {
-    test(`Network BOB Test: ${data.TestCaseID}`, async ({ page }) => {
+    test(`Senior BOB Test: ${data.TestCaseID}`, async ({ page }) => {
       const pages = new Pages(page);
       const salesforceApiHelper = new SalesforceApiHelper();
       const railcardApiHelper = new RailcardApiHelper();
@@ -281,6 +301,25 @@ test.describe("Network Purchase", () => {
           skipEligibility = flags.skipEligibility;
           skipPayment = flags.skipPayment;
           isSantander = flags.isSantander;
+        }
+
+        // Go to eligibility page unless skipcode is used
+        if (!skipEligibility) {
+          if (data.Railcard === "MATURE") {
+            await pages.supportingEvidence.provideEvidence(
+              data.EvidenceDocument
+            );
+          } else {
+            await pages.selectEligibility.selectEligibilityCheck(
+              data.EligibilityMethod
+            );
+            await pages.selectEligibility.enterEligibilityNumber(
+              data.EligibilityMethod,
+              data.Passport,
+              data.DrivingLicence,
+              data.NIC
+            );
+          }
         }
 
         // Photo upload page - upload single photo

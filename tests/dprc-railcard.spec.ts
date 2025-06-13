@@ -7,7 +7,7 @@ import { RailcardApiHelper } from "../../utils/railcardApiHelper";
 import { OrderProcessingService } from "../../utils/orderProcessingService";
 import { PromocodeHelper } from "../../utils/promocodeHelper";
 import { getTestData } from '../../utils/testDataLoader';
-import { test } from "../../fixtures";
+import { test } from "./fixtures";
 import path from "path";
 import type { RegistrationInput } from "../../pages/RegistrationPage";
 import fs from "fs";
