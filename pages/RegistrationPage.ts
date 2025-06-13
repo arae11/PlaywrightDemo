@@ -1,8 +1,8 @@
-import { Page, expect } from "@playwright/test";
+import { Page, Locator, expect } from "@playwright/test";
 import { BasePage } from "./BasePage";
 import { ChooseRailcardPage } from "./ChooseRailcardPage";
-import { billingDetailsLocators, idpLocators, verificationLocators } from "../resources/locators";
 
+// Input interface
 export interface RegistrationInput {
   email: string;
   password: string;
@@ -13,11 +13,59 @@ export interface RegistrationInput {
 }
 
 export class RegistrationPage extends BasePage {
-  chooseRailcard: ChooseRailcardPage;
+  readonly chooseRailcard: ChooseRailcardPage;
+
+  // Registration Page Locators
+  readonly registerPageHeader: Locator;
+  readonly registerTitleDropdown: Locator;
+  readonly registerFirstNameField: Locator;
+  readonly registerLastNameField: Locator;
+  readonly registerEmailField: Locator;
+  readonly registerPasswordField: Locator;
+  readonly registerConfirmPasswordField: Locator;
+  readonly registerRegisterButton: Locator;
+
+  // Login Page Locators
+  readonly loginPageHeader: Locator;
+  readonly loginRegisterButton: Locator;
+
+  // Midflow Register Locators
+  readonly midflowRegisterPageHeader: Locator;
+  readonly midflowRegisterButton: Locator;
+
+  // Verification Locators
+  readonly verificationPageHeader: Locator;
+
+  // Billing Details (for midflow reg completion)
+  readonly billingDetailsPageHeader: Locator;
 
   constructor(page: Page) {
     super(page);
     this.chooseRailcard = new ChooseRailcardPage(page);
+
+    // Registration Page Locators
+    this.registerPageHeader = page.locator('h2:has-text("Register for an online account")');
+    this.registerTitleDropdown = page.locator("#Salutation");
+    this.registerFirstNameField = page.locator("#FirstName");
+    this.registerLastNameField = page.locator("#LastName");
+    this.registerEmailField = page.locator("#Email");
+    this.registerPasswordField = page.locator("#password");
+    this.registerConfirmPasswordField = page.locator("#ConfirmPassword");
+    this.registerRegisterButton = page.locator('xpath=//button[.="Register"]');
+
+    // Login Page Locators
+    this.loginPageHeader = page.locator('h1:has-text("Login")');
+    this.loginRegisterButton = page.locator('xpath=//a[text()="Register"]');
+
+    // Midflow Register Locators
+    this.midflowRegisterPageHeader = page.locator('h2:has-text("Register for an online account")');
+    this.midflowRegisterButton = page.locator('button:text-is("Register")');
+
+    // Verification Locators
+    this.verificationPageHeader = page.locator('h2:has-text("Verify your email address")');
+
+    // Billing Details Header
+    this.billingDetailsPageHeader = page.locator('xpath=//h1[.="My Order: Billing details"]');
   }
 
   async navigateToRegistration() {
@@ -28,94 +76,73 @@ export class RegistrationPage extends BasePage {
   }
 
   async verifyRegistrationPage() {
-    await expect(this.page.locator(idpLocators.registerPageHeader)).toHaveText(
-      "Register for an online account"
-    );
+    await expect(this.registerPageHeader).toHaveText("Register for an online account");
   }
 
   async selectTitle(title: string) {
-    await this.page.selectOption(idpLocators.registerTitleDropdown, title);
+    await this.registerTitleDropdown.selectOption(title);
   }
 
   async enterFirstName(firstName: string) {
-    await this.page.fill(idpLocators.registerFirstNameField, firstName);
+    await this.registerFirstNameField.fill(firstName);
   }
 
   async enterLastName(lastName: string) {
-    await this.page.fill(idpLocators.registerLastNameField, lastName);
+    await this.registerLastNameField.fill(lastName);
   }
 
   async enterEmailAddress(email: string) {
-    await this.page.fill(idpLocators.registerEmailField, email);
+    await this.registerEmailField.fill(email);
   }
 
   async enterPassword(password: string) {
-    await this.page.fill(idpLocators.registerPasswordField, password);
-  }
-
-  async clickRegister() {
-    await this.page.click(idpLocators.loginRegisterButton);
-  }
-
-  async verifyMidflowRegistrationPage() {
-    await this.page.waitForLoadState("networkidle");
-    await this.page.waitForSelector(idpLocators.midflowRegisterPageHeader);
-    await expect(this.page.locator("h1")).toHaveText("Login");
-  }
-
-  async clickMidflowRegisterButton() {
-    await this.page.click(idpLocators.midflowRegisterButton, {
-      force: true,
-      delay: 100,
-    });
-    await this.page.waitForSelector(billingDetailsLocators.pageHeader, {
-      state: "visible",
-      timeout: 10000,
-    });
+    await this.registerPasswordField.fill(password);
   }
 
   async clickRegisterRegisterButton() {
-    await this.page.click(idpLocators.registerRegisterButton);
-  }
-
-  async verifyVerificationHeader() {
-    await this.page.waitForSelector(
-      verificationLocators.verificationPageHeader
-    );
+    await this.registerRegisterButton.click();
   }
 
   async registerNewUser(input: RegistrationInput) {
     const { email, password, purchaseType, title, firstName, lastName } = input;
 
-    // Common fields for both BFS and BOB
     await this.enterEmailAddress(email);
     await this.enterPassword(password);
 
-    // BOB-specific fields
     if (purchaseType === "BOB") {
       if (!title || !firstName || !lastName) {
-        throw new Error(
-          "BOB registration requires title, firstName, and lastName"
-        );
+        throw new Error("BOB registration requires title, firstName, and lastName");
       }
-
       await this.selectTitle(title);
       await this.enterFirstName(firstName);
       await this.enterLastName(lastName);
     }
-
     await this.clickRegisterRegisterButton();
-    //await this.verifyVerificationHeader();
   }
 
-  async midflowAccountRegistration(
-    data: RegistrationInput,
-    emailResult: { loginEmail: string }
-  ) {
+  async verifyMidflowRegistrationPage() {
+    await this.page.waitForLoadState("networkidle");
+    await expect(this.loginPageHeader).toHaveText("Login");
+  }
+
+  async clickRegister() {
+    await this.loginRegisterButton.click();
+  }
+
+  async clickMidflowRegisterButton() {
+    await this.midflowRegisterButton.click({ delay: 100, force: true });
+    await this.billingDetailsPageHeader.waitFor({ state: "visible", timeout: 10000 });
+  }
+
+  async verifyVerificationHeader() {
+    await this.verificationPageHeader.waitFor({ state: "visible", timeout: 10000 });
+  }
+
+  async midflowAccountRegistration(data: RegistrationInput, emailResult: { loginEmail: string }) {
     await this.verifyMidflowRegistrationPage();
     await this.clickRegister();
 
-    const registrationData =
+    const registrationData: RegistrationInput =
       data.purchaseType === "BFS"
         ? {
             email: emailResult.loginEmail,
@@ -132,7 +159,5 @@ export class RegistrationPage extends BasePage {
           };
 
     await this.registerNewUser(registrationData);
-    //await this.clickMidflowRegisterButton();
   }
 }
-export default RegistrationPage;

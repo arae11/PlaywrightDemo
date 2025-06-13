@@ -1,20 +1,49 @@
 import { Page, Locator, expect } from "@playwright/test";
 import { BasePage } from "./BasePage";
-import { photoUploadLocators } from "../resources/locators";
 import path from "path";
 
 export class PhotoUploadPage extends BasePage {
+  readonly pageHeaderSingle: Locator;
+  readonly pageHeaderDual: Locator;
+  readonly chooseFile: Locator;
+  readonly chooseFileSingle: Locator;
+  readonly chooseFileDualA: Locator;
+  readonly chooseFileDualB: Locator;
+  readonly fileInput: Locator;
+  readonly saveButton: Locator;
+  readonly clearButton: Locator;
+  readonly deleteButton: Locator;
+
+  private readonly uploadFolder: string;
+
   constructor(page: Page) {
     super(page);
+    this.pageHeaderSingle = page.locator('xpath=//label[contains(text(),"Photo upload")]');
+    this.pageHeaderDual = page.locator('xpath=//h1[contains(text(),": Photo upload")]');
+    this.chooseFile = page.locator('#photoUpload');
+    this.chooseFileSingle = page.locator('#mainHolder');
+    this.chooseFileDualA = page.locator('#dualPhotoUpload');
+    this.chooseFileDualB = page.locator('#dualPhotoUpload-secondary');
+    this.fileInput = page.locator('xpath=//input[@type="file"]');
+    this.saveButton = page.locator('xpath=//button[@aria-label="Save"]');
+    this.clearButton = page.locator('button[aria-label="Clear"]');
+    this.deleteButton = page.locator('button[aria-label="Delete photos"]');
+
+    this.uploadFolder = path.join(__dirname, "../resources/UploadFiles");
   }
 
   async verifyPhotoUploadPageSingle() {
     await expect(this.page.locator("h1")).toContainText("Photo upload");
   }
+
   async verifyPhotoUploadPageDual() {
-    await expect(
-      this.page.locator(photoUploadLocators.pageHeaderDual)
-    ).toContainText(": Photo upload");
+    await expect(this.pageHeaderDual).toContainText(": Photo upload");
+  }
+
+  private async uploadFile(locator: Locator, filePath: string) {
+    await locator.setInputFiles(filePath);
+    await this.clickSave();
+    await this.page.waitForTimeout(1500);
   }
 
   async uploadPhoto(
@@ -23,98 +52,56 @@ export class PhotoUploadPage extends BasePage {
     photoPrimaryFileName?: string,
     photoSecondaryFileName?: string
   ) {
-    const basePath = path.join(__dirname, "../resources/UploadFiles");
-
-    const waitAfterSave = async () => {
-      await this.page.waitForTimeout(1500);
-    };
-
     if (dual) {
-      // ✅ Dual card with only one holder
+      // Dual card logic
       if (photoPrimaryFileName && !photoSecondaryFileName) {
-        const singleHolderPath = path.join(basePath, photoPrimaryFileName);
-
-        await this.page
-          .locator(photoUploadLocators.chooseFileSingle)
-          .setInputFiles(singleHolderPath);
-        await this.clickSave();
-        await waitAfterSave();
+        const singleHolderPath = path.join(this.uploadFolder, photoPrimaryFileName);
+        await this.uploadFile(this.chooseFileSingle, singleHolderPath);
         return;
       }
 
-      // ✅ Dual card with two holders
       if (!photoPrimaryFileName || !photoSecondaryFileName) {
-        throw new Error(
-          "Both photoPrimaryFileName and photoSecondaryFileName are required for full dual uploads."
-        );
+        throw new Error("Both primary and secondary photo filenames are required for dual card uploads.");
       }
 
-      const primaryPath = path.join(basePath, photoPrimaryFileName);
-      const secondaryPath = path.join(basePath, photoSecondaryFileName);
+      const primaryPath = path.join(this.uploadFolder, photoPrimaryFileName);
+      const secondaryPath = path.join(this.uploadFolder, photoSecondaryFileName);
 
       console.log(`Uploading primary photo: ${photoPrimaryFileName}`);
-      await this.page
-        .locator(photoUploadLocators.chooseFileDualA)
-        .setInputFiles(primaryPath);
-      await this.clickSave();
-      await waitAfterSave();
+      await this.uploadFile(this.chooseFileDualA, primaryPath);
 
-      const secondaryInput = this.page.locator(
-        photoUploadLocators.chooseFileDualB
-      );
-      await secondaryInput.waitFor({ state: "attached", timeout: 5000 });
-
-      const isDisabled = await secondaryInput.isDisabled();
-      if (isDisabled) {
-        throw new Error(
-          "Secondary photo input is disabled, cannot upload file"
-        );
+      await this.chooseFileDualB.waitFor({ state: "attached", timeout: 5000 });
+      if (await this.chooseFileDualB.isDisabled()) {
+        throw new Error("Secondary photo input is disabled, cannot upload file");
       }
-      await secondaryInput.setInputFiles(secondaryPath);
-
-      await this.clickSave();
-      await waitAfterSave();
+      await this.uploadFile(this.chooseFileDualB, secondaryPath);
     } else {
-      // ✅ Single card
+      // Single card logic
       if (!photoFileName) {
         throw new Error("photoFileName is required for single uploads.");
       }
-
-      const filePath = path.join(basePath, photoFileName);
-      await this.page
-        .locator(photoUploadLocators.chooseFile)
-        .setInputFiles(filePath);
-
-      await this.clickSave();
-      await waitAfterSave();
+      const singlePath = path.join(this.uploadFolder, photoFileName);
+      await this.uploadFile(this.chooseFile, singlePath);
     }
   }
 
   async clickSave() {
-    const saveBtn = this.page.locator(photoUploadLocators.saveButton);
     try {
-      await saveBtn.waitFor({ state: "visible", timeout: 3000 });
+      await this.saveButton.waitFor({ state: "visible", timeout: 3000 });
+      if (!(await this.saveButton.isDisabled())) {
+        await this.saveButton.click();
+      }
     } catch {
-      return;
-    }
-
-    const disabled = await saveBtn.isDisabled();
-    if (!disabled) {
-      await saveBtn.click();
-    } else {
+      // Button not present or not clickable; silent fail
     }
   }
 
   async waitForClearButtonVisible(timeout = 10000) {
-    await this.page
-      .locator(photoUploadLocators.clearButton)
-      .waitFor({ state: "visible", timeout });
+    await this.clearButton.waitFor({ state: "visible", timeout });
   }
 
   async waitForDeleteButtonVisible(timeout = 10000) {
-    await this.page
-      .locator(photoUploadLocators.deleteButton)
-      .waitFor({ state: "visible", timeout });
+    await this.deleteButton.waitFor({ state: "visible", timeout });
   }
 
   async uploadPhotoFlow({
@@ -128,18 +115,11 @@ export class PhotoUploadPage extends BasePage {
     photoPrimaryFileName?: string;
     photoSecondaryFileName?: string;
   }) {
-    const isDualWithOneHolder =
-      dual && photoPrimaryFileName && !photoSecondaryFileName;
+    const isDualWithOneHolder = dual && photoPrimaryFileName && !photoSecondaryFileName;
 
     if (dual) {
-      await this.verifyPhotoUploadPageDual(); // Could split this further if UI is different
-      await this.uploadPhoto(
-        true,
-        undefined,
-        photoPrimaryFileName,
-        photoSecondaryFileName
-      );
-
+      await this.verifyPhotoUploadPageDual();
+      await this.uploadPhoto(true, undefined, photoPrimaryFileName, photoSecondaryFileName);
       if (isDualWithOneHolder) {
         await this.waitForClearButtonVisible();
       } else {

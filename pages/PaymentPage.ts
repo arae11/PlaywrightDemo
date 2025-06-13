@@ -1,6 +1,5 @@
-import { Page, FrameLocator, expect } from "@playwright/test";
+import { Page, FrameLocator, Locator, expect } from "@playwright/test";
 import { BasePage } from "./BasePage";
-import { paymentLocators } from "../resources/locators";
 
 export class PaymentPage extends BasePage {
   private readonly pageLoadTimeout = 45000; // Increased from 30s to 45s
@@ -8,63 +7,68 @@ export class PaymentPage extends BasePage {
   private readonly fieldDelay = 1000;
   private readonly initialDelay = 2000;
 
+  readonly pageHeader: Locator;
+  readonly paymentFrame: FrameLocator;
+  readonly paymentForm: Locator;
+  readonly cardNumber: Locator;
+  readonly cardNumberError: Locator;
+  readonly expiryDate: Locator;
+  readonly expiryDateError: Locator;
+  readonly securityCode: Locator;
+  readonly securityCodeError: Locator;
+  readonly cardholderName: Locator;
+  readonly cardholderNameError: Locator;
+  readonly purchaseButton: Locator;
+
   constructor(page: Page) {
     super(page);
+    this.pageHeader = page.locator('h1:has-text("Payment")');
+    this.paymentFrame = page.frameLocator('#payment-frame');
+    this.paymentForm = this.paymentFrame.locator('#card-payment-form');
+    this.cardNumber = this.paymentFrame.locator('#pas_ccnum');
+    this.cardNumberError = this.paymentFrame.locator('#pas_ccnum-error');
+    this.expiryDate = this.paymentFrame.locator('#pas_expiry');
+    this.expiryDateError = this.paymentFrame.locator('#pas_expiry-error');
+    this.securityCode = this.paymentFrame.locator('#pas_cccvc');
+    this.securityCodeError = this.paymentFrame.locator('#pas_cccvc-error');
+    this.cardholderName = this.paymentFrame.locator('#pas_ccname');
+    this.cardholderNameError = this.paymentFrame.locator('#pas_ccname-error');
+    this.purchaseButton = this.paymentFrame.locator('#rxp-primary-btn');
   }
 
   async verifyPaymentPage(): Promise<void> {
-    await this.page.waitForSelector(paymentLocators.pageHeader, {
-      timeout: this.pageLoadTimeout, // Using the longer page load timeout
-    });
-    await expect(this.page.locator("h1")).toContainText("Payment", {
-      timeout: this.defaultTimeout
-    });
-  }
-
-  async openPaymentFrame(): Promise<FrameLocator> {
-    const iframe = this.page.frameLocator(paymentLocators.paymentFrame);
-    await iframe.locator(paymentLocators.paymentForm).waitFor({
-      timeout: this.pageLoadTimeout // Longer timeout for frame loading
-    });
-    return iframe;
+    await this.pageHeader.waitFor({ timeout: this.pageLoadTimeout });
+    await expect(this.pageHeader).toContainText("Payment", { timeout: this.defaultTimeout });
   }
 
   private async fillFieldWithDelay(
-    frame: FrameLocator,
-    selector: string,
+    locator: Locator,
     value: string,
     delay = this.fieldDelay
   ): Promise<void> {
-    await frame.locator(selector).fill(String(value), { timeout: this.defaultTimeout });
+    await locator.fill(String(value), { timeout: this.defaultTimeout });
     await this.page.waitForTimeout(delay);
   }
 
   async enterPaymentDetails(
-    frame: FrameLocator,
     number: string,
     expiry: string,
     cvc: string,
     holder: string
   ): Promise<void> {
     await this.page.waitForTimeout(this.initialDelay);
-    
-    await this.fillFieldWithDelay(frame, paymentLocators.cardNumber, number);
-    await this.fillFieldWithDelay(frame, paymentLocators.expiryDate, expiry);
-    await this.fillFieldWithDelay(frame, paymentLocators.securityCode, cvc);
-    await this.fillFieldWithDelay(frame, paymentLocators.cardholderName, holder);
-    
+    await this.fillFieldWithDelay(this.cardNumber, number);
+    await this.fillFieldWithDelay(this.expiryDate, expiry);
+    await this.fillFieldWithDelay(this.securityCode, cvc);
+    await this.fillFieldWithDelay(this.cardholderName, holder);
     await this.page.waitForTimeout(this.fieldDelay * 2);
   }
 
-  async clickPurchaseButton(frame: FrameLocator): Promise<void> {
-    const purchaseButton = frame.locator(paymentLocators.purchaseButton);
-    await purchaseButton.waitFor({
-      state: "visible",
-      timeout: this.defaultTimeout
-    });
-    await purchaseButton.scrollIntoViewIfNeeded();
-    await expect(purchaseButton).toBeEnabled({ timeout: this.defaultTimeout });
-    await purchaseButton.click({ timeout: this.defaultTimeout });
+  async clickPurchaseButton(): Promise<void> {
+    await this.purchaseButton.waitFor({ state: "visible", timeout: this.defaultTimeout });
+    await this.purchaseButton.scrollIntoViewIfNeeded();
+    await expect(this.purchaseButton).toBeEnabled({ timeout: this.defaultTimeout });
+    await this.purchaseButton.click({ timeout: this.defaultTimeout });
   }
 
   async completePurchase(
@@ -74,13 +78,13 @@ export class PaymentPage extends BasePage {
     cardHolder: string
   ): Promise<void> {
     await this.verifyPaymentPage();
-    const frame = await this.openPaymentFrame();
-    await this.enterPaymentDetails(frame, creditCardNumber, cardExpiry, cardCvc, cardHolder);
-    await this.clickPurchaseButton(frame);
-    
+    await this.paymentForm.waitFor({ timeout: this.pageLoadTimeout });
+    await this.enterPaymentDetails(creditCardNumber, cardExpiry, cardCvc, cardHolder);
+    await this.clickPurchaseButton();
+
     await this.page.getByText("Order Confirmation").waitFor({
       state: "visible",
-      timeout: this.pageLoadTimeout // Longer timeout for final confirmation
+      timeout: this.pageLoadTimeout
     });
   }
 }

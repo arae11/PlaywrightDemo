@@ -1,19 +1,26 @@
-import { Page, expect } from '@playwright/test';
+import { Page, expect, Locator } from '@playwright/test';
 import { BasePage } from './BasePage';
-import { verificationLocators } from '../resources/locators';
 
 export class VerificationPage extends BasePage {
+    readonly verificationPageHeader: Locator;
+    readonly verifiedPageHeader: Locator;
+    readonly verifiedLoginButton: Locator;
+
     constructor(page: Page) {
         super(page);
+
+        this.verificationPageHeader = page.locator('h2:has-text("Verify your email address")');
+        this.verifiedPageHeader = page.locator('h2:has-text("Account verified")');
+        this.verifiedLoginButton = page.locator('//a[.="Login"]');
     }
 
     async verifyEmail(confirmationLink: string) {
         await this.page.goto(confirmationLink);
-        await expect(this.page.locator(verificationLocators.verifiedPageHeader)).toBeVisible();
+        await expect(this.verifiedPageHeader).toBeVisible();
     }
 
     async clickLogin() {
-        await this.page.click(verificationLocators.verifiedLoginButton);
+        await this.verifiedLoginButton.click();
     }
 
     async verifyEmailAndNavigateToIDP(confirmationLink: string) {
