@@ -35,7 +35,7 @@ export class SalesforceApiHelper {
   constructor() {
     const configPath = path.resolve(
       __dirname,
-      "../secrets/resources/salesforce_credentials.json"
+      "../resources/secrets/salesforce_credentials.json"
     );
     const config: SalesforceConfig = JSON.parse(
       fs.readFileSync(configPath, "utf8")

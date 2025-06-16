@@ -24,7 +24,7 @@ export class RailcardApiHelper {
   constructor(
     configPath: string = path.resolve(
       __dirname,
-      "../secrets/resources/railcard_credentials.json"
+      "../resources/secrets/railcard_credentials.json"
     )
   ) {
     const raw = fs.readFileSync(configPath, "utf-8");

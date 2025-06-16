@@ -1,19 +1,19 @@
-import { expect } from "@playwright/test";
-import { readExcelData } from "../../utils/excelReader";
-import { generateEmailWithEpoch } from "../../utils/emailGenerator";
-import { EmailHelper } from "../../utils/emailHelper";
-import { SalesforceApiHelper } from "../../utils/salesforceApiHelper";
-import { RailcardApiHelper } from "../../utils/railcardApiHelper";
-import { OrderProcessingService } from "../../utils/orderProcessingService";
-import { PromocodeHelper } from "../../utils/promocodeHelper";
-import { getTestData } from '../../utils/testDataLoader';
-import { test } from "./fixtures";
-import path from "path";
-import type { RegistrationInput } from "../../pages/RegistrationPage";
-import fs from "fs";
-import { orderSummaryLocators } from "@resources/locators";
-import { Pages } from "../../pages/pages";
-
+import {
+  expect,
+  readExcelData,
+  generateEmailWithEpoch,
+  EmailHelper,
+  SalesforceApiHelper,
+  RailcardApiHelper,
+  OrderProcessingService,
+  PromocodeHelper,
+  getTestData,
+  test,
+  path,
+  type RegistrationInput,
+  fs,
+  Pages
+} from "../utils/imports";
 test.setTimeout(60000);
 
 const testDataBFS = getTestData("Disabled_BFS") as any[];
@@ -155,7 +155,6 @@ test.describe("DPRC Purchase", () => {
         // Railcard Order: Summary page
         const finalPrice =
           await pages.orderSummary.verifyCorrectPriceOnSummaryPage({
-            orderTotalLocator: orderSummaryLocators.orderTotalPrice,
             railcard: data.Railcard,
             years: data.Duration,
             deliveryType: data.DeliveryType,
@@ -351,7 +350,6 @@ test.describe("DPRC Purchase", () => {
         // Railcard Order: Summary page
         const finalPrice =
           await pages.orderSummary.verifyCorrectPriceOnSummaryPage({
-            orderTotalLocator: orderSummaryLocators.orderTotalPrice,
             railcard: data.Railcard,
             years: data.Duration,
             deliveryType: data.DeliveryType,

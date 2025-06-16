@@ -17,14 +17,30 @@ export class OrderConfirmationPage extends BasePage {
   constructor(page: Page) {
     super(page);
     this.pageHeader = page.locator('h1:has-text("Confirmation")');
-    this.orderNumber = page.locator('xpath=//p[.="Order number:"]/following-sibling::*[1]');
-    this.orderDateTime = page.locator('xpath=//p[.="Order date:"]/following-sibling::*[1]');
-    this.paymentReference = page.locator('xpath=//p[.="Payment reference:"]/following-sibling::*[1]');
-    this.billingAddress = page.locator('xpath=//p[.="Billing address:"]/following-sibling::*[1]');
-    this.purchasedBy = page.locator('xpath=//p[.="Purchased by:"]/following-sibling::*[1]');
-    this.items = page.locator('xpath=//p[contains(text(), "Items:")]/following-sibling::div//p[contains(@class, "bold")][1]');
-    this.orderTotal = page.locator('//p[contains(normalize-space(.), "Order total:")]/following-sibling::*[1]');
-    this.buyAnotherRailcardButton = page.locator('xpath=//button[contains(text(),"Buy another Railcard")]');
+    this.orderNumber = page.locator(
+      'xpath=//p[.="Order number:"]/following-sibling::*[1]'
+    );
+    this.orderDateTime = page.locator(
+      'xpath=//p[.="Order date:"]/following-sibling::*[1]'
+    );
+    this.paymentReference = page.locator(
+      'xpath=//p[.="Payment reference:"]/following-sibling::*[1]'
+    );
+    this.billingAddress = page.locator(
+      'xpath=//p[.="Billing address:"]/following-sibling::*[1]'
+    );
+    this.purchasedBy = page.locator(
+      'xpath=//p[.="Purchased by:"]/following-sibling::*[1]'
+    );
+    this.items = page.locator(
+      'xpath=//p[contains(text(), "Items:")]/following-sibling::div//p[contains(@class, "bold")][1]'
+    );
+    this.orderTotal = page.locator(
+      '//p[contains(normalize-space(.), "Order total:")]/following-sibling::*[1]'
+    );
+    this.buyAnotherRailcardButton = page.locator(
+      'xpath=//button[contains(text(),"Buy another Railcard")]'
+    );
   }
 
   async verifyOrderConfirmationPage() {
@@ -47,7 +63,10 @@ export class OrderConfirmationPage extends BasePage {
     const total = await getText(this.orderTotal);
     const billingAddress = await getText(this.billingAddress);
     const purchasedBy = await getText(this.purchasedBy);
-    const orderItems = await getText(this.items);
+
+    // Get all matched items text
+    const orderItemsArray = await this.items.allTextContents();
+    const orderItems = orderItemsArray.join(" | ");
 
     const labelWidth = 24;
 

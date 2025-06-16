@@ -6,11 +6,18 @@ import { OAuth2Client } from "google-auth-library";
 const MAX_RETRIES = parseInt(process.env.EMAIL_RETRY_COUNT || "5", 10);
 const DELAY_MS = parseInt(process.env.EMAIL_RETRY_DELAY_MS || "10000", 10);
 const EMAIL_ENVIRONMENT = "id-preproduction.railcard.co.uk";
-const TOKEN_PATH = path.join(__dirname, "..", "resources", "token.json");
+const TOKEN_PATH = path.join(
+  __dirname, 
+  "..", 
+  "resources", 
+  "secrets", 
+  "token.json"
+);
 const CREDENTIALS_PATH = path.join(
   __dirname,
   "..",
   "resources",
+  "secrets",
   "credentials.json"
 );
 

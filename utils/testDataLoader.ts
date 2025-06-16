@@ -6,7 +6,7 @@ import { testConfig } from "../resources/testConfig";
 export function getTestData(sheetName?: string): any {
   const excelPath = path.join(
     __dirname,
-    "../resources/",
+    "../data",
     testConfig.excelFileName
   );
   const sheetToRead = sheetName || testConfig.defaultSheet;

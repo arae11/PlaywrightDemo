@@ -25,12 +25,18 @@ export class MyRailcardsPage extends BasePage {
   constructor(page: Page) {
     super(page);
     this.pageHeader = page.locator('h1:has-text("My Railcards")');
+    // this.railcardDetailsHeader = page.locator('(//h3)[1]');
     this.railcardDetailsHeader = page.locator('(//h3)[1]');
-    this.railcardDetailsName = page.locator('//p[1]');
-    this.railcardDetailsExpiry = page.locator('//p[2]');
+    // this.railcardDetailsName = page.locator('//p[1]');
+    this.railcardDetailsName = page.locator('div:has(h3:text-matches(".*(Railcard|Santander).*")) p').first();
+    this.railcardDetailsExpiry = page.locator('p:has-text("Expires")');
+    // this.railcardDetailsExpiry = page.locator('//p[2]');
     this.railcardDetailsEmail = page.locator('//p[.="Email"]/following-sibling::*[1]');
+    // this.railcardDetailsEmail = page.locator('//p[.="Email"]/following-sibling::*[1]');
     this.railcardDetailsFulfilment = page.locator('//p[.="Railcard Type"]/following-sibling::*[1]');
+    // this.railcardDetailsFulfilment = page.locator('//p[.="Railcard Type"]/following-sibling::*[1]');
     this.railcardDetailsRailcardNumber = page.locator('//p[.="Railcard Number"]/following-sibling::*[1]');
+    // this.railcardDetailsRailcardNumber = page.locator('//p[.="Railcard Number"]/following-sibling::*[1]');
     this.railcardDetailsRenewButton = page.locator('//button[text()="Renew Railcard"]');
     this.railcardDetailsReplaceButton = page.locator('//a[text()="Replace a lost or stolen Railcard"]');
     this.railcardDetailsAddToApp = page.locator('xpath=//button[text()="Add Railcard to app"]');
