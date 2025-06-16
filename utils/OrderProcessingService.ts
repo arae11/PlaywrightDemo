@@ -1,3 +1,23 @@
+/**
+ * OrderProcessingService
+ * 
+ * Handles business logic for processing Mature Student Railcard orders.
+ * 
+ * Responsibilities:
+ * - Checks if the railcard type is "MATURE", otherwise skips processing.
+ * - Queries Salesforce to get the Salesforce Order ID based on the order number.
+ * - Retrieves detailed railcard order info via the Railcard API.
+ * - Extracts the order line item ID from the railcard order response.
+ * - Calls Salesforce API helper twice to receive documents, validate, and approve the order purchase,
+ *   with a 5-second delay between calls to ensure proper processing.
+ * - Marks the Salesforce order as complete once all validations and approvals are successful.
+ * - Logs progress and success messages for traceability.
+ * 
+ * Usage:
+ * Instantiate this service with SalesforceApiHelper and RailcardApiHelper instances,
+ * then call `processMatureStudentRailcardOrder` with the order number and railcard type.
+ */
+
 import { SalesforceApiHelper } from "./salesforceApiHelper";
 import { RailcardApiHelper } from "./railcardApiHelper";
 

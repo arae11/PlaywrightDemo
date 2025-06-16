@@ -10,7 +10,6 @@ interface CustomiseRailcardData {
 }
 
 export class CustomiseRailcardPage extends BasePage {
-  // Declare Locators
   readonly selectMatureCheckbox: Locator;
   readonly selectOneYear: Locator;
   readonly selectThreeYear: Locator;
@@ -31,7 +30,6 @@ export class CustomiseRailcardPage extends BasePage {
   constructor(page: Page) {
     super(page);
 
-    // Initialize Locators
     this.selectMatureCheckbox = page.locator('input#mature-student-0');
     this.selectOneYear = page.locator('//label[@for="select-term-option-1"]');
     this.selectThreeYear = page.locator('//label[@for="select-term-option-0"]');

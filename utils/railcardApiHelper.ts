@@ -1,3 +1,29 @@
+/**
+ * RailcardApiHelper
+ * 
+ * Helper class to interact with the Railcard and Orders APIs.
+ * 
+ * Responsibilities:
+ * - Load Railcard API credentials from a JSON config file.
+ * - Fetch OAuth2 access tokens using client credentials grant flow.
+ * - Provide authorization headers for API calls.
+ * - Retrieve railcard order details by order ID.
+ * - Extract specific data (e.g., order line item ID) from API responses.
+ * 
+ * Constructor:
+ * - Accepts an optional path to the JSON config file containing API credentials.
+ * 
+ * Key methods:
+ * - getAccessToken(): Fetches a fresh OAuth2 token for API authorization.
+ * - getAuthHeaders(): Returns the authorization headers including the Bearer token and client secrets.
+ * - getRailcardOrder(orderId): Fetches order details from the Orders API by order ID.
+ * - extractOrderLineItemIdFromResponse(response): Parses the API response to extract the first order line item ID.
+ * 
+ * Usage:
+ * Instantiate this class with the config file path if custom, then use methods to
+ * fetch tokens, call APIs, and process Railcard orders.
+ */
+
 import axios from "axios";
 import * as fs from "fs";
 import path from "path";

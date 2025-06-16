@@ -1,3 +1,33 @@
+/**
+ * Gmail OAuth2 Token Generator (Manual Flow)
+ *
+ * Purpose:
+ *  - Performs the manual OAuth2 flow to retrieve and store Gmail API access and refresh tokens.
+ *  - Used for authenticating Gmail API access (e.g., for automated testing or email reading).
+ *
+ * Flow Overview:
+ *  1. Loads client credentials from `credentials.json`.
+ *  2. Generates an OAuth2 consent URL and prompts the user to authorize the app.
+ *  3. Accepts the full redirect URL pasted by the user after login.
+ *  4. Extracts the authorization code from the URL.
+ *  5. Exchanges the code for access and refresh tokens using Google APIs.
+ *  6. Saves the tokens to `token.json`.
+ *
+ * Key Functions:
+ *  - prompt(query): Prompts user input via CLI.
+ *  - extractCodeFromUrl(redirectUrl): Extracts and decodes the `code` param from the redirect URL.
+ *
+ * File Paths:
+ *  - `credentials.json`: Client credentials (downloaded from Google Cloud Console).
+ *  - `token.json`: Output file where access and refresh tokens are stored.
+ *
+ * Notes:
+ *  - This script must be run manually via the command line.
+ *  - Only needs to be done once per Gmail account unless tokens expire or are revoked.
+ *  - The Gmail scope used is `https://www.googleapis.com/auth/gmail.readonly`.
+ */
+
+
 import fs from 'fs';
 import path from 'path';
 import readline from 'readline';

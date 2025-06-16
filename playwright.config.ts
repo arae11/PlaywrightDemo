@@ -1,3 +1,19 @@
+/**
+ * Playwright Test Configuration
+ *
+ * - Tests located in "./tests"
+ * - Runs tests fully in parallel locally; restricted concurrency in CI environment
+ * - Retry failed tests once locally, twice on CI
+ * - Supports test sharding on CI using TEST_SHARDS and TEST_SHARD_INDEX env variables
+ * - All shards output results to a common, timestamped directory under "test-results"
+ * - Artifacts include screenshots and videos only on test failure
+ * - Trace enabled on first retry for debugging
+ * - Default browser is Google Chrome desktop; other browsers and mobile devices configured but commented out
+ * - Headless mode enabled with viewport 1280x720
+ * - Base URL set to secure preproduction Railcard environment
+ * - Run name and timestamp environment variables (RUN_NAME, UNIQUE_TIMESTAMP) control output folder naming
+ */
+
 import { defineConfig, devices } from "@playwright/test";
 import path from "path";
 import fs from "fs";

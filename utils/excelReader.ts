@@ -1,10 +1,39 @@
+/**
+ * Excel Test Data Reader Utility
+ *
+ * Purpose:
+ *  - Loads structured test data from Excel sheets into strongly typed JavaScript objects.
+ *  - Supports flexible path resolution to handle both relative and absolute paths.
+ *
+ * Key Exports:
+ *  - `readExcelData(filePath, sheetName?)`: Reads Excel rows into `TestDataRow[]` format.
+ *  - `isRegistrationData(data)`: Type guard to validate required fields for registration flows.
+ *
+ * Data Schema:
+ *  - `TestDataRow` interface defines all expected and optional columns in the Excel file.
+ *  - Supports dynamic fields using `[key: string]: any` to handle additional test inputs.
+ *
+ * Features:
+ *  - Resolves file paths from:
+ *      • Absolute path
+ *      • Project root
+ *      • Local module directory
+ *      • Fallback `resources` directory
+ *  - Throws meaningful errors for missing files or malformed content.
+ *  - Uses `xlsx` for sheet parsing and conversion to JSON.
+ *
+ * Notes:
+ *  - All fields should be defined in the Excel file using exact column headers.
+ *  - Expected to reside in or load from `resources` or similar test data directories.
+ */
+
 import XLSX from "xlsx";
 import path from "path";
 import fs from "fs";
 
 /**
  * Interface defining the shape of test data from Excel
- * Customize this to match your actual Excel columns
+ * Customize this to match the Excel columns
  */
 export interface TestDataRow {
   TestCaseID: string;

@@ -1,3 +1,36 @@
+/**
+ * Railcard Boundary DOB Calculator
+ * 
+ * Purpose:
+ *  - Calculates valid boundary Dates of Birth (DOB) for railcard eligibility.
+ *  - Used for generating test data for different railcard types, durations, and eligibility boundaries.
+ * 
+ * Types:
+ *  - BoundaryType: 'lower' | 'upper'
+ *  - RailcardType: '1625' | '2630' | 'MATURE' | 'SENIOR' | 'NETWORK' | 'TWOTOGETHER' | 'FAMILYANDFRIENDS' | 'SANTANDER' | 'DPRC'
+ *  - BoundaryDOB: { day: number, month: number, year: number }
+ * 
+ * Main Function: calculateBoundaryDOB(railcard, boundaryType, years)
+ *  - railcard: The type of railcard.
+ *  - boundaryType: Whether to calculate the lower or upper eligibility boundary.
+ *  - years: Railcard duration (defaults to 1 year; accepts 1 or 3).
+ * 
+ * Logic:
+ *  - Validates inputs.
+ *  - Determines min and max eligible ages based on railcard type and duration.
+ *  - Calculates boundary DOB:
+ *      - Lower boundary: Subtract minAge + 2 weeks from today.
+ *      - Upper boundary: Subtract maxAge (+1 if flexible), add 1 day buffer if applicable.
+ * 
+ * Utility Function: subtractYearsFromDate(date, years)
+ *  - Subtracts an approximate number of days (years * 365) from a given date.
+ * 
+ * Notes:
+ *  - Currently only supports 1625, 2630, MATURE, and SENIOR railcard types.
+ *  - Throws errors for unsupported railcard types or invalid inputs.
+ */
+
+
 export type BoundaryType = 'lower' | 'upper';
 export type RailcardType = '1625' | '2630' | 'MATURE' | 'SENIOR' | 'NETWORK' | 'TWOTOGETHER' | 'FAMILYANDFRIENDS' | 'SANTANDER' | 'DPRC';
 

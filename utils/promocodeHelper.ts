@@ -1,3 +1,32 @@
+/**
+ * PromocodeHelper
+ * 
+ * A helper service for validating and processing railcard promocodes via the Orders API.
+ * 
+ * Main responsibilities:
+ * - Validate promocodes by calling the Orders API /validate endpoint.
+ * - Extract and interpret tags from promocode validation responses.
+ * - Provide helper methods to determine if eligibility/payment should be skipped based on tags.
+ * - Calculate final prices considering promocode discounts.
+ * - Provide railcard base pricing without promocode applied.
+ * 
+ * Constructor:
+ * - Accepts an optional RailcardApiHelper instance to handle API calls and authentication headers.
+ * 
+ * Key methods:
+ * - validatePromocode(promo, sku, expectedPrice): sends a POST request to validate the promocode.
+ * - getTagsFromPromocode(promo, sku, expectedPrice): returns tags from the validation response.
+ * - verifyPromocodeTags(promo, sku, expectedPrice): returns booleans for specific tags (skipEligibility, skipPayment, isSantander).
+ * - getFinalPriceConsideringSkipPayment(basePrice, skipPayment): returns 0 if skipPayment is true, otherwise the base price.
+ * - extractTotalDiscountValue(response): extracts total discount amount from the API response.
+ * - calculatePromocodeDiscount(expectedPrice, discountAmount): calculates final discounted price, never negative.
+ * - getRailcardValueWithoutPromo(railcard, years): returns base price for railcard type and duration without promocode.
+ * 
+ * Usage:
+ * Instantiate this class (optionally with a RailcardApiHelper) and call the methods
+ * to validate promocodes and calculate pricing logic accordingly.
+ */
+
 import axios from "axios";
 import { RailcardApiHelper } from "./railcardApiHelper";
 import { clouddebugger } from "googleapis/build/src/apis/clouddebugger";

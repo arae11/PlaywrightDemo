@@ -9,7 +9,6 @@
     "clean:results": "rimraf test-results",
     "clean:all": "rimraf test-results playwright-report",
     "purchase-bau": "for /f %i in ('powershell -command \"Get-Date -Format yyyy-MM-ddTHH-mm-ss\"') do set UNIQUE_TIMESTAMP=%i && set TEST_PROFILE=bau&& set RUN_NAME=BAU-Purchase&&npx playwright test --retries=3 && npm run merge",
-    "purchase-smoke1": "set TEST_PROFILE=smoke&& set RUN_NAME=Smoke-Purchase&&npx playwright test --retries=3",
     "purchase-smoke": "for /f %i in ('powershell -command \"Get-Date -Format yyyy-MM-ddTHH-mm-ss\"') do set UNIQUE_TIMESTAMP=%i && set TEST_PROFILE=smoke&& set RUN_NAME=Smoke-Purchase&& npx playwright test --retries=3 && npm run merge",
     "senior": "set RUN_NAME=Senior-Purchase&&npx playwright test tests/specs/purchases/senior-railcard.spec.ts --retries=3",
     "network": "set RUN_NAME=Network-Purchase&&npx playwright test tests/specs/purchases/network-railcard.spec.ts --retries=3",
@@ -17,7 +16,6 @@
     "ff": "set RUN_NAME=FamilyAndFriends-Purchase&&npx playwright test tests/specs/purchases/familyandfriends-railcard.spec.ts --retries=3",
     "tt": "set RUN_NAME=TwoTogether-Purchase&&npx playwright test tests/specs/purchases/twotogether-railcard.spec.ts --retries=3",
     "dprc": "set RUN_NAME=DPRC-Purchase&&npx playwright test tests/specs/purchases/dprc-railcard.spec.ts --retries=3",
-    "posttest": "node ./tests/utils/consolidateResults.js",
     "merge": "ts-node ./tests/utils/merge-shards.js"
   },
   "keywords": [],

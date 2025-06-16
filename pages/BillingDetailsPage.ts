@@ -1,7 +1,6 @@
 import { Page, expect, Locator } from "@playwright/test";
 import { BasePage } from "./BasePage";
 
-// Address interfaces stay as is
 interface Address {
   line1?: string;
   line2?: string;
@@ -200,36 +199,6 @@ export class BillingDetailsPage extends BasePage {
     );
   }
 
-  // async checkSameAsBillingAddress() {
-  //   if (!(await this.sameAsBillingCheckbox.isChecked())) {
-  //     await this.sameAsBillingCheckbox.check();
-  //   }
-  // }
-
-  // async uncheckSameAsBillingAddress() {
-  //   if (await this.sameAsBillingCheckbox.isChecked()) {
-  //     await this.sameAsBillingCheckbox.uncheck();
-  //   }
-  // }
-
-  // async isManualAddressEntryVisible(): Promise<boolean> {
-  //   try {
-  //     await this.deliveryAddressLine1.waitFor({
-  //       state: "visible",
-  //       timeout: 1000,
-  //     });
-  //     return true;
-  //   } catch {
-  //     return false;
-  //   }
-  // }
-
-  // async clickIfVisible(locator: Locator) {
-  //   if (await locator.isVisible()) {
-  //     await locator.click();
-  //   }
-  // }
-
   async clickSameAsBillingAddressCheckbox() {
     await this.sameAsBillingCheckbox.click();
   }
@@ -280,78 +249,6 @@ export class BillingDetailsPage extends BasePage {
       await this.specialDelivery.click();
     } else {
       throw new Error(`Unknown delivery type: ${deliveryType}`);
-    }
-  }
-
-  async setAddresses(
-    countryId: string,
-    sameAsBillingAddress: string,
-    billingAddress?: Address,
-    deliveryAddress?: Address
-  ) {
-    const isUK = countryId === "826";
-    const isSame = sameAsBillingAddress === "YES";
-
-    if (isUK) {
-      // Billing address - always enter manually if needed
-      await this.clickIfVisible(this.enterAddressManuallyBilling);
-      await this.billingAddressLine1.waitFor({ state: "visible" });
-      await this.fillAddressFields(
-        {
-          addressLine1: this.billingAddressLine1,
-          addressLine2: this.billingAddressLine2,
-          addressLine3: this.billingAddressLine3,
-          townCity: this.billingTownCity,
-          postcode: this.billingPostcode,
-        },
-        billingAddress
-      );
-
-      if (isSame) {
-        await this.checkSameAsBillingAddress();
-      } else {
-        await this.uncheckSameAsBillingAddress();
-
-        // Delivery address - click enter manually if needed
-        await this.clickIfVisible(this.enterAddressManuallyDelivery);
-        await this.deliveryAddressLine1.waitFor({ state: "visible" });
-        await this.fillAddressFields(
-          {
-            addressLine1: this.deliveryAddressLine1,
-            addressLine2: this.deliveryAddressLine2,
-            addressLine3: this.deliveryAddressLine3,
-            townCity: this.deliveryTownCity,
-            postcode: this.deliveryPostcode,
-          },
-          deliveryAddress
-        );
-      }
-    } else {
-      // Non-UK flow
-      await this.fillAddressFields(
-        {
-          addressLine1: this.billingAddressLine1,
-          addressLine2: this.billingAddressLine2,
-          addressLine3: this.billingAddressLine3,
-          townCity: this.billingTownCity,
-          postcode: this.billingPostcode,
-        },
-        billingAddress
-      );
-
-      // Delivery address - click enter manually if visible
-      await this.clickIfVisible(this.enterAddressManuallyDelivery);
-      await this.deliveryAddressLine1.waitFor({ state: "visible" });
-      await this.fillAddressFields(
-        {
-          addressLine1: this.deliveryAddressLine1,
-          addressLine2: this.deliveryAddressLine2,
-          addressLine3: this.deliveryAddressLine3,
-          townCity: this.deliveryTownCity,
-          postcode: this.deliveryPostcode,
-        },
-        deliveryAddress
-      );
     }
   }
 

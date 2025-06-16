@@ -6,14 +6,21 @@ End-to-end (E2E) testing of the Railcard website, built using Playwright with Ty
 
 ## Overview
 
-This project uses **Data Driven Testing (DDT)**.  
-To update test data, modify the `Railcard_Purchase_BAU.xlsx` file located in `tests/resources`.
+This project uses **Data Driven Testing (DDT)** to run test scenarios with various inputs based on Excel data.  
+Test data is maintained in Excel files such as `Railcard_Purchase_BAU.xlsx` located in `/data`.  
+The data sheet used can be changed dynamically via code or configuration.
+
+The project also integrates with:
+
+- **Railcard API**: For fetching railcard order details and authentication tokens.
+- **Salesforce API**: For querying orders, updating order items, and marking orders as complete.
+- **Gmail API**: For email verification steps, with OAuth2 token management.
 
 ---
 
 ## Prerequisites
 
-Make sure to download and install the following:
+Install the following before proceeding:
 
 - [Visual Studio Code (VS Code)](https://code.visualstudio.com/)
 - [Node.js](https://nodejs.org/)
@@ -23,7 +30,7 @@ Make sure to download and install the following:
 
 ## Setup Instructions
 
-Run the following commands in your terminal to install dependencies and set up the environment:
+Run the following commands to install dependencies and prepare your environment:
 
 ```bash
 npx playwright install
@@ -51,17 +58,17 @@ Gmail Authorization
 To authorize Gmail API access, run:
 
 ```bash
-npx ts-node tests/utils/authorizeGmail.ts
+npm run gmail
 ```
 
-Follow the on-screen instructions to generate or refresh your authentication token. This will create a token.json file in tests/resources.
+Follow the CLI instructions to generate or refresh your authentication token. This will create a token.json file in resources/secrets.
 
 ## Project Structure & Usage
 Page Object Model (POM)
 
 This project uses the Page Object Model (POM) pattern to organize code.
 
-    Add new pages by following the existing format in tests/pages.
+    Add new pages by following the existing format in /pages.
 
     Remember to register new pages in index.ts and pages.ts.
 
@@ -69,21 +76,19 @@ This project uses the Page Object Model (POM) pattern to organize code.
 
 Tests
 
-    Test files are located in tests/specs.
+    Test files are located in /tests. These are orgranised by Railcard Type.
 
     Use the page methods in these test files to build your test scenarios.
 
 Resources
 
-    The tests/resources folder contains essential files such as locators and test data.
-
-    Avoid modifying files here unless adding new locators to locators.ts.
+    The /resources folder contains essential files such as user secrets and document uploads.
 
 Utilities
 
-    The tests/utils folder contains helper scripts used by the tests.
+    The /utils folder contains helper scripts used by the tests.
 
-    Usually, you won’t need to update these, except for Gmail token renewal.
+    Usually, you won’t need to update these and there is a comment at the top of the each page explaining how the function works.
 
     To refresh the Gmail token, re-run the authorization command above.
 

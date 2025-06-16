@@ -1,3 +1,29 @@
+/**
+ * Unique Email Generator with Epoch Suffix
+ *
+ * Purpose:
+ *  - Generates unique test email addresses by appending the current epoch timestamp 
+ *    and a UUID fragment to a base email.
+ *  - Ensures email uniqueness across test runs, especially useful for registration flows.
+ *
+ * Main Function: generateEmailWithEpoch(originalEmail, railcardType, orderType, secondaryHolder)
+ *  - originalEmail: Base email to mutate (e.g., 'digitalrailcardtest@gmail.com').
+ *  - railcardType: Used to label the email with railcard type context.
+ *  - orderType: 'BFS' or 'BOB'; determines if a BOB-specific email should be generated.
+ *  - secondaryHolder: 'Yes' or 'No'; determines if a secondary email is needed (for TwoTogether etc.).
+ *
+ * Output:
+ *  - Returns an object of type `EmailEpochResult` containing:
+ *      - loginEmail: Always present; unique main email address.
+ *      - bobEmail: Present if orderType is 'BOB'.
+ *      - secondaryEmail: Present for TwoTogether or if secondaryHolder is 'Yes'.
+ *      - epoch: Epoch timestamp used for uniqueness.
+ *
+ * Notes:
+ *  - Uses UUID and current epoch to guarantee uniqueness.
+ *  - Emails are logged to console for traceability.
+ */
+
 import { randomUUID } from 'crypto';
 
 interface EmailEpochResult {

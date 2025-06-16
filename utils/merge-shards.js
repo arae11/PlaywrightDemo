@@ -1,3 +1,26 @@
+/**
+ * Shard Results Merger
+ * 
+ * This script merges multiple shard JSON test results files into a single consolidated JSON file.
+ * 
+ * Behavior:
+ * - Determines the base results directory:
+ *    * If environment variable UNIQUE_TIMESTAMP is set, uses `test-results/{RUN_NAME}--{UNIQUE_TIMESTAMP}`
+ *    * Otherwise, picks the latest timestamped folder inside `test-results/`
+ * - Reads all shard JSON files (`results-*.json`) within the chosen directory
+ * - Parses and merges all JSON arrays into one
+ * - Writes merged output as `merged-results.json` inside the base directory
+ * 
+ * Error Handling:
+ * - Throws and logs descriptive errors if:
+ *    * Results directory or shard files are missing
+ *    * File read or JSON parse errors occur
+ * - Exits with failure code on errors
+ * 
+ * Usage:
+ * - Run this script after parallel test shards complete to combine their results for unified reporting.
+ */
+
 const fs = require('fs');
 const path = require('path');
 

@@ -1,3 +1,20 @@
+/**
+ * SalesforceApiHelper - A utility class for authenticating with Salesforce using OAuth2 client credentials,
+ * querying orders by order number, and updating Salesforce Order and OrderItem records.
+ *
+ * Features:
+ * - Loads Salesforce credentials from a secure JSON config file.
+ * - Automatically manages access token retrieval and refresh with caching and expiry handling.
+ * - Queries Salesforce Order objects by OrderNumber and extracts Salesforce record IDs.
+ * - Updates OrderItem records to mark documents received, validate, and approve purchases.
+ * - Marks Orders as complete by updating their status.
+ * - Handles HTTP errors gracefully with detailed logging.
+ *
+ * Usage:
+ * Instantiate the class, then call async methods such as queryOrderAndGetSalesforceId, 
+ * receiveDocumentsValidateAndApproveOrderPurchase, and markOrderAsComplete.
+ */
+
 import fs from "fs";
 import path from "path";
 import fetch, { Response } from "node-fetch";

@@ -1,3 +1,35 @@
+/**
+ * Gmail Confirmation Link Extractor (OAuth2 - Gmail API)
+ * 
+ * Purpose:
+ *  - Authenticates to Gmail using OAuth2 credentials and token files.
+ *  - Searches for the most recent confirmation email sent to a given target email.
+ *  - Extracts the confirmation link from email content (both HTML and plaintext).
+ *  - Retries multiple times to wait for email arrival (useful in automation flows).
+ * 
+ * Key Exports:
+ *  - `extractConfirmationLink(targetEmail)`: Main function that retrieves confirmation link for provided email address.
+ * 
+ * Features:
+ *  - Uses OAuth2 credentials stored in `resources/secrets/credentials.json` and `token.json`.
+ *  - Supports masked credential logging for secure debug visibility.
+ *  - Configurable retry count and delay via environment variables:
+ *      - `EMAIL_RETRY_COUNT` (default: 5)
+ *      - `EMAIL_RETRY_DELAY_MS` (default: 10000 ms)
+ *  - Only scans emails received in the past day with subject `"Confirm your email address"`.
+ *  - Parses both `text/html` and `text/plain` email parts.
+ *  - Extracts first URL matching the environment host: `id-preproduction.railcard.co.uk`.
+ * 
+ * Usage Notes:
+ *  - Before running this, you must generate valid OAuth2 tokens using `authorizeGmail.ts`.
+ *  - This file is typically called by Playwright or test automation flows during registration.
+ * 
+ * Dependencies:
+ *  - googleapis
+ *  - google-auth-library
+ *  - fs, path (for credential/token file access)
+ */
+
 import fs from "fs";
 import path from "path";
 import { google } from "googleapis";
